@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
@@ -35,7 +35,7 @@ export default function MedicationsPage() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <img src="logo.png" alt="logo" />
+        <Image source={require("./logo.png")} style={styles.logo} />
       </View>
 
       {/* Tabs */}
@@ -69,12 +69,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   header: {
-    width: width,
-    height: width / 3.5,
+    width: "100%",
+    height: 120,
     backgroundColor: "#CDD8F5",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    paddingTop: 20,
+    resizeMode: "contain",
   },
   tabs: {
     flexDirection: "row",
