@@ -1,39 +1,44 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Stack, useRouter } from "expo-router";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
+export default function Layout() {
+  const router = useRouter();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <>
+      <Stack screenOptions={{ headerShown: false }} />
+      <View style={styles.navbar}>
+        <TouchableOpacity onPress={() => router.push("/")}>
+          <Text style={styles.navItem}>Home</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push("/medications")}>
+          <Text style={styles.navItem}>Medication</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push("/profile")}>
+          <Text style={styles.navItem}>Profile</Text>
+        </TouchableOpacity>
+      </View>
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  navbar: {
+    backgroundColor: "#CDD8F5", 
+    flexDirection: "row", 
+    justifyContent: "space-around", 
+    alignItems: "center", 
+    height: 60, 
+    position: "absolute", 
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderRadius: 25,
+  },
+  navItem: {
+    color: "#fff", 
+    fontSize: 16, 
+    fontWeight: "bold", 
+  },
+});
