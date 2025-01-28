@@ -22,10 +22,12 @@ export default function MedicationsPage() {
 
     return data.map((item, index) => (
       <View style={styles.card} key={index}>
-        <Text style={styles.cardTitle}>{item.name}</Text>
-        <Text style={styles.cardSubtitle}>
-          {"frequency" in item ? item.frequency : item.specialty}
-        </Text>
+        <View style={styles.cardTextContainer}>
+          <Text style={styles.cardTitle}>{item.name}</Text>
+          <Text style={styles.cardSubtitle}>
+            {"frequency" in item ? item.frequency : item.specialty}
+          </Text>
+        </View>
         <Ionicons name="chevron-forward" size={24} color="#fff" style={styles.arrowIcon} />
       </View>
     ));
@@ -74,6 +76,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#CDD8F5",
     justifyContent: "center",
     alignItems: "center",
+    borderRadius: 25,
   },
   logo: {
     width: 100,
@@ -121,10 +124,14 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
   },
+  cardTextContainer: {
+    flex: 1,
+  },
   cardTitle: {
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+    marginBottom: 5, 
   },
   cardSubtitle: {
     color: "#fff",
