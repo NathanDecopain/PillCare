@@ -11,7 +11,7 @@ export default function EditProfilePage() {
 
   return (
     <View style={styles.container}>
-      {/* Profile Picture */}
+      {/* Pfp */}
       <View style={styles.profilePictureContainer}>
         <Image
           source={require("./userPfp.jpg")}
@@ -22,7 +22,7 @@ export default function EditProfilePage() {
         </TouchableOpacity>
       </View>
 
-      {/* Form Fields */}
+      {/* Form */}
       <View style={styles.form}>
         <Text style={styles.label}>Full name</Text>
         <TextInput

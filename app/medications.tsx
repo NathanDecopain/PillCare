@@ -1,27 +1,59 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
 const medications = [
-  { name: "Acetaminophen", frequency: "everyday" },
-  { name: "Anadrol-50", frequency: "once a week" },
+  { name: "Acetaminophen", frequency: "Everyday", dosage: "500mg", time: "08:00 AM", duration: "30 days", notes: "Take with water" },
+  { name: "Anadrol-50", frequency: "Once a week", dosage: "50mg", time: "10:00 PM", duration: "60 days", notes: "Take before bed" },
 ];
 
 const doctors = [
-  { name: "Dr. Smith", specialty: "Cardiologist" },
-  { name: "Dr. Johnson", specialty: "Dermatologist" },
+  { name: "Dr. Smith", specialty: "Cardiologist", email: "dr.smith@example.com", phone: "+1 514-999-1234" },
+  { name: "Dr. Johnson", specialty: "Dermatologist", email: "dr.johnson@example.com", phone: "+1 514-888-5678" },
 ];
 
 export default function MedicationsPage() {
   const [activeTab, setActiveTab] = useState<"Medications" | "Doctors">("Medications");
+  const router = useRouter();
+
+  const handleItemPress = (item: any) => {
+    if (activeTab === "Medications") {
+      router.push({
+        pathname: "/medications/details",
+        params: {
+          name: item.name,
+          frequency: item.frequency,
+          dosage: item.dosage,
+          time: item.time,
+          duration: item.duration,
+          notes: item.notes,
+        },
+      });
+    } else {
+      router.push({
+        pathname: "/docteur/profile",
+        params: {
+          name: item.name,
+          specialty: item.specialty,
+          email: item.email,
+          phone: item.phone,
+          hospital: item.hospital,
+          languages: item.languages, 
+          availability: item.availability, 
+        },
+      });
+    }
+  };
+  
 
   const renderContent = () => {
     const data = activeTab === "Medications" ? medications : doctors;
 
     return data.map((item, index) => (
-      <View style={styles.card} key={index}>
+      <TouchableOpacity key={index} style={styles.card} onPress={() => handleItemPress(item)}>
         <View style={styles.cardTextContainer}>
           <Text style={styles.cardTitle}>{item.name}</Text>
           <Text style={styles.cardSubtitle}>
@@ -29,7 +61,7 @@ export default function MedicationsPage() {
           </Text>
         </View>
         <Ionicons name="chevron-forward" size={24} color="#fff" style={styles.arrowIcon} />
-      </View>
+      </TouchableOpacity>
     ));
   };
 
@@ -57,7 +89,6 @@ export default function MedicationsPage() {
       <View style={styles.divider} />
 
       <ScrollView contentContainerStyle={styles.scrollViewContent}>{renderContent()}</ScrollView>
-
       <TouchableOpacity style={styles.addButton}>
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
@@ -77,6 +108,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 25,
+
   },
   logo: {
     width: 100,
@@ -109,7 +141,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#7B83EB",
-    width: width * 0.90,
+    width: width * 0.9,
     alignSelf: "center",
     borderRadius: 20,
     paddingVertical: 15,
@@ -131,7 +163,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 5, 
+    marginBottom: 5,
   },
   cardSubtitle: {
     color: "#fff",
@@ -158,7 +190,6 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     color: "#fff",
-    fontSize: 32,
-    fontWeight: "bold",
+    fontSize: 37,
   },
 });
