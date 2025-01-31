@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -6,11 +6,19 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 export default function Layout() {
   const router = useRouter();
 
+ 
   return (
     <GestureHandlerRootView style={styles.container}>
+      {/* Ensure the Stack is properly placed to handle page navigation */}
       <Stack screenOptions={{ headerShown: false }} />
       <View style={styles.navbar}>
         <TouchableOpacity onPress={() => router.push("/")}>
+          <Text style={styles.navItem}>Login</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push("./register")}>
+          <Text style={styles.navItem}>Register</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push("/Home")}>
           <Text style={styles.navItem}>Home</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push("/medications")}>
@@ -29,7 +37,7 @@ export default function Layout() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, 
+    flex: 1,
   },
   navbar: {
     backgroundColor: "#CDD8F5",
