@@ -3,7 +3,7 @@ import { View, Text, Button, StyleSheet } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import { db } from './config/firebase-config';
 import { doc, setDoc } from 'firebase/firestore';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth } from './config/firebase-config';
 
 export default function Register() {
@@ -27,11 +27,12 @@ export default function Register() {
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await sendEmailVerification(userCredential.user);
+
   
       // Store user data in Firestore
       await setDoc(doc(db, 'Utilisateurs', userCredential.user.uid), {
         email: userCredential.user.email,
-        password: password,
         userType: 'Patient', 
         createdAt: new Date(),
       });

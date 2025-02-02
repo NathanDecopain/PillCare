@@ -25,3 +25,5 @@ const storage = getStorage(app);
 const auth = getAuth(app); // Initialize auth with the app
 
 export { db, auth, storage };
+
+export default app;
