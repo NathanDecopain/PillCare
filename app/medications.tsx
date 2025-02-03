@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { db } from "./config/firebase-config";
+import { collection, addDoc, onSnapshot, getDocs, setDoc, doc } from "firebase/firestore";
+
 
 const { width } = Dimensions.get("window");
 
@@ -17,7 +20,13 @@ const doctors = [
 
 export default function MedicationsPage() {
   const [activeTab, setActiveTab] = useState<"Medications" | "Doctors">("Medications");
+  const [currentUser, setCurrentUser] = useState();
+  const [medicationList, setMedicationList] = useState([]);
   const router = useRouter();
+
+
+  
+  
 
   const handleItemPress = (item: any) => {
     if (activeTab === "Medications") {

@@ -1,6 +1,11 @@
-import React from "react";
 import { View, Text, StyleSheet, Dimensions, ScrollView, Image } from "react-native";
 import { PieChart } from "react-native-chart-kit";
+import React, { useState, useEffect } from "react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+
 
 const { width } = Dimensions.get("window");
 
@@ -10,6 +15,36 @@ const data = [
 ];
 
 const StatisticsPage = () => {
+    const [userEmail, setUserEmail] = useState(null);
+
+    useEffect(() => {
+    const fetchUser = async () => {
+      const userData = await AsyncStorage.getItem("user");
+      if (userData) {
+        const user = JSON.parse(userData);
+        setUserEmail(user.email); // Firebase Auth user email
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     return (
     <View style={styles.container}>
         
@@ -19,6 +54,7 @@ const StatisticsPage = () => {
     <ScrollView style={styles.container}>
 
       <Text style={styles.headerTitle}>This month</Text>
+      <Text style={styles.headerTitle}> {userEmail}</Text>
 
       <Text style={styles.medicineName}>Acetaminophen</Text>
       <PieChart

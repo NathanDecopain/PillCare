@@ -5,6 +5,10 @@ import { auth } from './config/firebase-config';
 import { useNavigation } from '@react-navigation/native';
 import { db } from './config/firebase-config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 
 
 export default function Login() {
@@ -27,6 +31,8 @@ export default function Login() {
         return;
       }
       setSuccess("Login success!")
+      AsyncStorage.setItem("user", JSON.stringify(user));
+      console.log(user);
     } catch (err) {
       setError('Échec de la connexion. Vérifiez vos identifiants.');
     }
@@ -43,7 +49,7 @@ export default function Login() {
       }
   
       // Check if the user exists in Firestore
-      const userRef = doc(db, 'Utilisateurs', user.uid);
+      const userRef = doc(db, 'users', user.uid);
       const userSnapshot = await getDoc(userRef);
   
       if (!userSnapshot.exists()) {
@@ -62,7 +68,6 @@ export default function Login() {
   };
 
 
-      
 
   return (
     <View>

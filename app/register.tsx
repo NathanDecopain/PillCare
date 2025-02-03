@@ -31,7 +31,7 @@ export default function Register() {
 
   
       // Store user data in Firestore
-      await setDoc(doc(db, 'Utilisateurs', userCredential.user.uid), {
+      await setDoc(doc(db, 'users', userCredential.user.uid), {
         email: userCredential.user.email,
         userType: 'Patient', 
         createdAt: new Date(),
