@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { db } from "./config/firebase-config";
-import { collection, addDoc, onSnapshot, getDocs, setDoc, doc } from "firebase/firestore";
+import { collection, addDoc, onSnapshot, getDocs, setDoc, doc, query } from "firebase/firestore";
 
 const { width } = Dimensions.get("window");
 
@@ -20,8 +20,22 @@ const doctors = [
 export default function MedicationsPage() {
   const [activeTab, setActiveTab] = useState<"Medications" | "Doctors">("Medications");
   const [currentUser, setCurrentUser] = useState();
-  const [medicationList, setMedicationList] = useState([]);
+  const [medicationList, setMedicationList] = useState<Medication[]>([]);
   const router = useRouter();
+
+  type Medication = {
+    name: string;       // Add this line
+    dosage: string;
+    frequency: string;
+    time: string;
+    duration: string;
+    notes: string;
+  };
+
+
+  useEffect(()=> {
+    fetchMedications();
+    });
 
   const handleItemPress = (item: any) => {
     if (activeTab === "Medications") {
@@ -53,8 +67,19 @@ export default function MedicationsPage() {
   };
 
 
+  const fetchMedications = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "usersMedication"));
+      const medicationList = querySnapshot.docs.map(doc => doc.data() as Medication);
+      setMedicationList(medicationList);
+    } catch (error) {
+      console.error("Error fetching medications: ", error);
+    }
+  };
+
+
   const renderContent = () => {
-    const data = activeTab === "Medications" ? medications : doctors;
+    const data = activeTab === "Medications" ? medicationList : doctors;
 
     return data.map((item, index) => (
       <TouchableOpacity key={index} style={styles.card} onPress={() => handleItemPress(item)}>

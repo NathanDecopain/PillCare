@@ -20,16 +20,35 @@ export default function Login() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
+  
       if (!user.emailVerified) {
         setError("Votre adresse courriel n'a pas été vérifiée. Veuillez vérifier vos emails.");
         return;
       }
-
-      AsyncStorage.setItem("user", JSON.stringify(user));
-      console.log(user);
-      
-      router.replace("/Home"); 
+  
+      // Fetch additional user details from Firestore
+      const userRef = doc(db, 'users', user.uid);
+      const userSnapshot = await getDoc(userRef);
+  
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+  
+        // Save user details to AsyncStorage
+        const userDetails = {
+          email: user.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          dateOfBirth: userData.dateOfBirth,
+          phoneNumber: userData.phoneNumber,
+        };
+  
+        await AsyncStorage.setItem("user", JSON.stringify(userDetails));
+        console.log(userDetails);  // You can check the details in the console for debugging
+  
+        router.replace("/Home"); 
+      } else {
+        setError("Les informations supplémentaires de l'utilisateur sont introuvables.");
+      }
     } catch (err) {
       setError('Échec de la connexion. Vérifiez vos identifiants.');
     }
