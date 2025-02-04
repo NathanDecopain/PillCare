@@ -6,6 +6,7 @@ import { db } from "./config/firebase-config";
 import { collection, addDoc, onSnapshot, getDocs, setDoc, doc } from "firebase/firestore";
 
 
+
 const { width } = Dimensions.get("window");
 
 const medications = [
@@ -98,9 +99,14 @@ export default function MedicationsPage() {
       <View style={styles.divider} />
 
       <ScrollView contentContainerStyle={styles.scrollViewContent}>{renderContent()}</ScrollView>
-      <TouchableOpacity style={styles.addButton}>
+
+
+
+      <TouchableOpacity style={styles.addButton}
+          onPress={() => router.push("/addMedication")}
+        >
         <Text style={styles.addButtonText}>+</Text>
-      </TouchableOpacity>
+        </TouchableOpacity>
     </View>
   );
 }

@@ -1,14 +1,37 @@
-import React from "react";
 import { View, Text, StyleSheet, Image, Dimensions, ScrollView } from "react-native";
 import "react-native-gesture-handler";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useEffect } from "react";
 
 
 const { width } = Dimensions.get("window");
 
 export default function ProfilePage() {
   const router = useRouter(); 
+
+  const [userEmail, setUserEmail] = useState(null);
+  const [firstName, setFirstName] = useState(null);
+  const [lastName, setLastName] = useState(null);
+  const [dateOfBirth, setDateOfBirth] = useState(null);
+  const [phoneNumber, setPhoneNumber] = useState(null);
+
+  useEffect(() => {
+  const fetchUser = async () => {
+    const userData = await AsyncStorage.getItem("user");
+    if (userData) {
+      const user = JSON.parse(userData);
+      setUserEmail(user.email); // Firebase Auth user email
+      setFirstName(user.firstName);
+      setLastName(user.lastName);
+      setDateOfBirth(user.dateOfBirth);
+      setPhoneNumber(user.phoneNumber);
+    }
+  };
+
+  fetchUser();
+}, []);
 
   return (
     <View style={styles.container}>
@@ -20,19 +43,19 @@ export default function ProfilePage() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.profileContainer}>
           <Image source={require("./userPfp.jpg")} style={styles.profileImage} />
-          <Text style={styles.name}>Jonathan Dubois</Text>
-          <Text style={styles.subtitle}>john.dubois@hotmail.com</Text>
+          <Text style={styles.name}>{firstName} {lastName}</Text>
+          <Text style={styles.subtitle}>{userEmail}</Text>
         </View>
 
         {/* Information Section */}
         <View style={styles.infoSection}>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Phone:</Text>
-            <Text style={styles.infoValue}>+1 (514) 467-8263</Text>
+            <Text style={styles.infoValue}>{phoneNumber}</Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Date of Birth:</Text>
-            <Text style={styles.infoValue}>January 9, 1993</Text>
+            <Text style={styles.infoValue}>{dateOfBirth}</Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>About Me:</Text>
