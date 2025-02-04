@@ -11,13 +11,13 @@ export default function DoctorProfile() {
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <Image source={require("../logo.png")} style={styles.logo} />
+                <Image source={require("../icon/logo.png")} style={styles.logo} />
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 {/* Pfp & name */}
                 <View style={styles.profileContainer}>
-                    <Image source={require("../userPfp.jpg")} style={styles.profileImage} />
+                    <Image source={require("../icon/userPfp.jpg")} style={styles.profileImage} />
                     <Text style={styles.name}>{params.name || "Nom non spécifié"}</Text>
                     <Text style={styles.subtitle}>{params.specialty || "Spécialité non spécifiée"}</Text>
                 </View>
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     },
     header: {
         width: "100%",
-        height: 120,
+        height: 110,
         backgroundColor: "#CDD8F5",
         justifyContent: "center",
         alignItems: "center",
