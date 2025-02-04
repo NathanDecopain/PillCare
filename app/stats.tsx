@@ -4,9 +4,6 @@ import React, { useState, useEffect } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-
-
 const { width } = Dimensions.get("window");
 
 const data = [
@@ -22,28 +19,12 @@ const StatisticsPage = () => {
       const userData = await AsyncStorage.getItem("user");
       if (userData) {
         const user = JSON.parse(userData);
-        setUserEmail(user.email); // Firebase Auth user email
+        setUserEmail(user.email);
       }
     };
 
     fetchUser();
   }, []);
-
-
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     return (
     <View style={styles.container}>
@@ -54,7 +35,6 @@ const StatisticsPage = () => {
     <ScrollView style={styles.container}>
 
       <Text style={styles.headerTitle}>This month</Text>
-      <Text style={styles.headerTitle}> {userEmail}</Text>
 
       <Text style={styles.medicineName}>Acetaminophen</Text>
       <PieChart
@@ -95,7 +75,7 @@ const styles = StyleSheet.create({
     },
     header: {
         width: "100%",
-        height: 120,
+        height: 110,
         backgroundColor: "#CDD8F5",
         justifyContent: "center",
         alignItems: "center",
@@ -111,9 +91,12 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 24,
         fontWeight: "bold",
-        color: "#333",
+        color: "#666",
         paddingBottom: 30,
         paddingTop: 20,
+        textAlign: "center", 
+        alignSelf: "center", 
+        width: "100%", 
     },
     legend: {
         flexDirection: "row",
@@ -122,14 +105,14 @@ const styles = StyleSheet.create({
     legendItem: {
         marginHorizontal: 10,
         fontSize: 14,
-        color: "#333",
+        color: "#666",
     },
     medicineName: {
         fontSize: 18,
         fontWeight: "bold",
         marginHorizontal: 20,
         marginVertical: 10,
-        color: "#333",
+        color: "#666",
     },
 });
 

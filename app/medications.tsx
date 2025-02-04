@@ -19,18 +19,15 @@ const doctors = [
 ];
 
 export default function MedicationsPage() {
+
   const [activeTab, setActiveTab] = useState<"Medications" | "Doctors">("Medications");
   const [currentUser, setCurrentUser] = useState();
   const [medicationList, setMedicationList] = useState([]);
   const router = useRouter();
 
-
-  
-  
-
   const handleItemPress = (item: any) => {
     if (activeTab === "Medications") {
-      router.push({
+      router.replace({
         pathname: "/medications/details",
         params: {
           name: item.name,
@@ -42,7 +39,7 @@ export default function MedicationsPage() {
         },
       });
     } else {
-      router.push({
+      router.replace({
         pathname: "/docteur/profile",
         params: {
           name: item.name,
@@ -98,8 +95,8 @@ export default function MedicationsPage() {
       <View style={styles.divider} />
 
       <ScrollView contentContainerStyle={styles.scrollViewContent}>{renderContent()}</ScrollView>
-      <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonText}>+</Text>
+      <TouchableOpacity style={styles.addButton} onPress={() => router.replace("/medications/addMedication")}>
+        <Ionicons name="add" size={30} color="#fff" />
       </TouchableOpacity>
     </View>
   );

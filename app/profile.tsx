@@ -1,14 +1,13 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, Dimensions, ScrollView } from "react-native";
-import "react-native-gesture-handler";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import {
+  View, Text, StyleSheet, Image, Dimensions, ScrollView, TouchableOpacity
+} from "react-native";
 import { useRouter } from "expo-router";
-
 
 const { width } = Dimensions.get("window");
 
 export default function ProfilePage() {
-  const router = useRouter(); 
+  const router = useRouter();
 
   return (
     <View style={styles.container}>
@@ -37,17 +36,22 @@ export default function ProfilePage() {
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>About Me:</Text>
             <Text style={styles.infoValue}>
-              Je sais pas si cette section est necessaire, je vais la garder pour l'instant
+              Je sais pas si cette section est nécessaire, je vais la garder pour l'instant.
             </Text>
           </View>
         </View>
 
-        {/* Edit Profile Button */}
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => router.push("/editProfile")}
-        >
-          <Text style={styles.editButtonText}>Edit Profile</Text>
+        {/* Profile Actions */}
+        <TouchableOpacity style={styles.actionButton} onPress={() => router.replace("/editProfile")}>
+          <Text style={styles.actionButtonText}>Edit Profile</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.actionButton} onPress={() => router.replace("/medications")}>
+          <Text style={styles.actionButtonText}>View My Medications</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.logoutButton} onPress={() => router.replace("/")}>
+          <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>
 
       </ScrollView>
@@ -62,11 +66,12 @@ const styles = StyleSheet.create({
   },
   header: {
     width: "100%",
-    height: 120,
+    height: 110,
     backgroundColor: "#CDD8F5",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 25,
+
   },
   logo: {
     width: 100,
@@ -75,9 +80,9 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   scrollContent: {
-    paddingTop: 20, 
+    paddingTop: 20,
     paddingHorizontal: 20,
-    paddingBottom: 30, 
+    paddingBottom: 30,
   },
   profileContainer: {
     alignItems: "center",
@@ -125,21 +130,40 @@ const styles = StyleSheet.create({
     color: "#666",
     marginTop: 5,
   },
-  editButton: {
+  actionButton: {
     backgroundColor: "#7B83EB",
     borderRadius: 30,
     width: width * 0.9,
     alignSelf: "center",
     paddingVertical: 15,
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 5,
   },
-  editButtonText: {
+  actionButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  logoutButton: {
+    backgroundColor: "#E57373",
+    borderRadius: 30,
+    width: width * 0.9,
+    alignSelf: "center",
+    paddingVertical: 15,
+    alignItems: "center",
+    marginTop: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  logoutButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",

@@ -37,6 +37,9 @@ export default function MedicationDetails() {
 
             {/* Contenu principal */}
             <View style={styles.container}>
+                {/* titre ici dans le container */}
+                <Text style={styles.title}>Medication Details</Text>
+
                 <View style={styles.form}>
                     <Text style={styles.label}>Medication Name</Text>
                     <TextInput
@@ -66,13 +69,6 @@ export default function MedicationDetails() {
                         onChangeText={(text) => handleChange("time", text)}
                     />
 
-                    <Text style={styles.label}>Duration</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={medication.duration}
-                        onChangeText={(text) => handleChange("duration", text)}
-                    />
-
                     <Text style={styles.label}>Additional Notes</Text>
                     <TextInput
                         style={[styles.input, styles.notesInput]}
@@ -94,7 +90,7 @@ export default function MedicationDetails() {
 const styles = StyleSheet.create({
     header: {
         width: "100%",
-        height: 120,
+        height: 110,
         backgroundColor: "#CDD8F5",
         justifyContent: "center",
         alignItems: "center",
@@ -111,8 +107,16 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         backgroundColor: "#fff",
+        alignItems: "center", 
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: "bold",
+        color: "#666",
+        marginBottom: 20,
     },
     form: {
+        width: "100%",
         marginBottom: 20,
     },
     label: {
@@ -127,6 +131,7 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         fontSize: 16,
         color: "#333",
+        width: "100%",
     },
     notesInput: {
         height: 60,
@@ -136,6 +141,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingVertical: 15,
         alignItems: "center",
+        width: "100%",
     },
     saveButtonText: {
         fontSize: 18,

@@ -9,25 +9,24 @@ export default function Layout() {
  
   return (
     <GestureHandlerRootView style={styles.container}>
-      {/* Ensure the Stack is properly placed to handle page navigation */}
       <Stack screenOptions={{ headerShown: false }} />
       <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => router.push("/")}>
+        <TouchableOpacity onPress={() => router.replace("/")}>
           <Text style={styles.navItem}>Login</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("./register")}>
+        <TouchableOpacity onPress={() => router.replace("./register")}>
           <Text style={styles.navItem}>Register</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/Home")}>
+        <TouchableOpacity onPress={() => router.replace("/Home")}>
           <Text style={styles.navItem}>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/medications")}>
+        <TouchableOpacity onPress={() => router.replace("/medications")}>
           <Text style={styles.navItem}>Medication</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/stats")}>
+        <TouchableOpacity onPress={() => router.replace("/stats")}>
           <Text style={styles.navItem}>Stats</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/profile")}>
+        <TouchableOpacity onPress={() => router.replace("/profile")}>
           <Text style={styles.navItem}>Profile</Text>
         </TouchableOpacity>
       </View>
