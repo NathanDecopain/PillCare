@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { useRouter } from "expo-router"; // Remplace useNavigation par useRouter
 import { auth } from './config/firebase-config';
-import { useNavigation } from '@react-navigation/native';
 import { db } from './config/firebase-config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -14,7 +14,7 @@ export default function Login() {
   const [success, setSuccess] = useState('');
 
   const googleProvider = new GoogleAuthProvider();
-  const navigation = useNavigation(); // Get the navigation prop
+  const router = useRouter(); // Utilise useRouter pour la navigation
 
   const handleEmailLogin = async () => {
     try {
@@ -25,9 +25,11 @@ export default function Login() {
         setError("Votre adresse courriel n'a pas été vérifiée. Veuillez vérifier vos emails.");
         return;
       }
-      setSuccess("Login success!");
+
       AsyncStorage.setItem("user", JSON.stringify(user));
       console.log(user);
+      
+      router.replace("/Home"); // 🔹 Redirige vers la page Home après la connexion réussie
     } catch (err) {
       setError('Échec de la connexion. Vérifiez vos identifiants.');
     }
@@ -54,6 +56,8 @@ export default function Login() {
           createdAt: new Date(),
         });
       }
+
+      router.replace("/Home"); // 🔹 Redirige vers la page Home après connexion avec Google
     } catch (error) {
       console.error('Error during Google sign-in:', error);
       setError('Une erreur est survenue lors de la connexion avec Google.');
@@ -68,7 +72,7 @@ export default function Login() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.title}>Connexion</Text>
+        <Text style={styles.title}>Log In</Text>
 
         {/* Email */}
         <Text style={styles.label}>Email</Text>
@@ -81,7 +85,7 @@ export default function Login() {
         />
 
         {/* Mot de passe */}
-        <Text style={styles.label}>Mot de passe</Text>
+        <Text style={styles.label}>Password</Text>
         <TextInput
           value={password}
           onChangeText={setPassword}
@@ -95,12 +99,19 @@ export default function Login() {
 
         {/* Bouton Connexion */}
         <TouchableOpacity style={styles.button} onPress={handleEmailLogin}>
-          <Text style={styles.buttonText}>Se connecter</Text>
+          <Text style={styles.buttonText}>Log in</Text>
         </TouchableOpacity>
 
         {/* Bouton Connexion avec Google */}
         <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignIn}>
-          <Text style={styles.googleButtonText}>Continuer avec Google</Text>
+          <Text style={styles.googleButtonText}>Log in with Google</Text>
+        </TouchableOpacity>
+
+        {/* 🔹 Redirection vers l'inscription */}
+        <TouchableOpacity onPress={() => router.push("/register")} style={styles.registerLink}>
+          <Text style={styles.registerText}>
+            Don't have an account ? <Text style={styles.registerTextBold}>Sign up</Text>
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -119,7 +130,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 25,
-
   },
   logo: {
     width: 100,
@@ -189,13 +199,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 10,
+    width: "100%",
   },
   googleButtonText: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#333",
-    width: "100%",
     textAlign: "center",
   },
+  registerLink: {
+    marginTop: 20,
+    alignItems: "center",
+  },
+  registerText: {
+    fontSize: 16,
+    color: "#666",
+  },
+  registerTextBold: {
+    color: "#7B83EB",
+    fontWeight: "bold",
+  },
 });
-

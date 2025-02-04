@@ -1,35 +1,45 @@
-import React, { useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./config/firebase-config";
 
 export default function Layout() {
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
- 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user);
+      if (!user) {
+        router.replace("/"); // Redirige vers la page de connexion si l'utilisateur n'est pas connecté
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (isAuthenticated === null) return null; // Empêche l'affichage tant que l'état de connexion n'est pas déterminé
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <Stack screenOptions={{ headerShown: false }} />
-      <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => router.replace("/")}>
-          <Text style={styles.navItem}>Login</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.replace("./register")}>
-          <Text style={styles.navItem}>Register</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.replace("/Home")}>
-          <Text style={styles.navItem}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.replace("/medications")}>
-          <Text style={styles.navItem}>Medication</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.replace("/stats")}>
-          <Text style={styles.navItem}>Stats</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.replace("/profile")}>
-          <Text style={styles.navItem}>Profile</Text>
-        </TouchableOpacity>
-      </View>
+      {isAuthenticated && (
+        <View style={styles.navbar}>
+          <TouchableOpacity onPress={() => router.replace("/Home")}>
+            <Image source={require("./home.png")} style={styles.icon} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.replace("/medications")}>
+            <Image source={require("./medication.png")} style={styles.icon} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.replace("/stats")}>
+            <Image source={require("./stats.png")} style={styles.icon} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.replace("/profile")}>
+            <Image source={require("./profile.png")} style={styles.icon} />
+          </TouchableOpacity>
+        </View>
+      )}
     </GestureHandlerRootView>
   );
 }
@@ -50,9 +60,9 @@ const styles = StyleSheet.create({
     right: 0,
     borderRadius: 25,
   },
-  navItem: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
+  icon: {
+    width: 30,
+    height: 30,
+    resizeMode: "contain",
   },
 });

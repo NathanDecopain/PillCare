@@ -1,35 +1,26 @@
 import { ExpoRoot } from "expo-router";
-import React, { useEffect, useState } from 'react';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { getDoc, doc } from 'firebase/firestore';
-import { db, auth } from './config/firebase-config';
-import { User } from "firebase/auth";
+import React, { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./config/firebase-config";
+import { View, ActivityIndicator } from "react-native";
 
 export default function App() {
-    const [user, setUser] = useState<User | null>(null);
-    const [userType, setUserType] = useState('');
-  
-    useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        setUser(user || null);
-      });
-      return () => unsubscribe();
-    }, []);
-  
-    useEffect(() => {
-      if (user) {
-        const fetchUserType = async () => {
-          try {
-            const userRef = doc(db, 'users', user.uid);
-            const userDoc = await getDoc(userRef);
-            if (userDoc.exists()) {
-              setUserType(userDoc.data().userType); 
-            }
-          } catch (error) {
-            console.error("Error fetching user type:", error);
-          }
-        };
-        fetchUserType();
-      }
-    }, [user]);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user); // Vérifie si l'utilisateur est connecté
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (isAuthenticated === null) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#7B83EB" />
+      </View>
+    ); // Affiche un chargement pendant la vérification
+  }
+
+  return <ExpoRoot context={require.context("./app")} />;
 }

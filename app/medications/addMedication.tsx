@@ -12,7 +12,6 @@ export default function AddMedication() {
     dosage: "",
     frequency: "Everyday",
     time: "08:00 AM",
-    duration: "",
     notes: "",
   });
 
@@ -36,7 +35,7 @@ export default function AddMedication() {
         <Image source={require("../logo.png")} style={styles.logo} />
       </View>
 
-      {/* Formulaire */}
+      {/* Form */}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
 
         <Text style={styles.label}>Medication Name</Text>
@@ -64,9 +63,6 @@ export default function AddMedication() {
             <Picker.Item label="10:00 PM" value="10:00 PM" />
           </Picker>
         </View>
-
-        <Text style={styles.label}>Duration</Text>
-        <TextInput style={styles.input} placeholder="Enter duration (e.g., 30 days)" value={medication.duration} onChangeText={(text) => handleChange("duration", text)}/>
 
         <Text style={styles.label}>Additional Notes</Text>
         <TextInput style={[styles.input, styles.notesInput]} placeholder="Enter any additional notes" multiline value={medication.notes} onChangeText={(text) => handleChange("notes", text)}/>
