@@ -32,7 +32,7 @@ export default function MedicationDetails() {
         <View style={{ flex: 1, backgroundColor: "#fff" }}>
             {/* Header */}
             <View style={styles.header}>
-                <Image source={require("../logo.png")} style={styles.logo} />
+                <Image source={require("../icon/logo.png")} style={styles.logo} />
             </View>
 
             {/* Contenu principal */}
@@ -94,7 +94,7 @@ export default function MedicationDetails() {
 const styles = StyleSheet.create({
     header: {
         width: "100%",
-        height: 120,
+        height: 110,
         backgroundColor: "#CDD8F5",
         justifyContent: "center",
         alignItems: "center",
