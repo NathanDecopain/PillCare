@@ -1,7 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions, ScrollView } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { User } from "firebase/auth";
+import { collection, addDoc, onSnapshot, getDocs, setDoc, doc } from "firebase/firestore";
+import { db } from "../config/firebase-config";
+
+
+
 
 const { width } = Dimensions.get("window");
 
@@ -14,19 +21,72 @@ export default function AddMedication() {
     time: "08:00 AM",
     notes: "",
   });
+  const [medicationName, setMedicationName] = useState();
+  const [userEmail, setUserEmail] = useState(null);
+  const [firstName, setFirstName] = useState(null);
+  const [lastName, setLastName] = useState(null);
+  const [dateOfBirth, setDateOfBirth] = useState(null);
+  const [phoneNumber, setPhoneNumber] = useState(null);
+  const [medications, setMedications] = useState<{ id: string; quantity: number; name: string; }[]>([]);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userData = await AsyncStorage.getItem("user");
+      if (userData) {
+        const user = JSON.parse(userData);
+        setUserEmail(user.email); // Firebase Auth user email
+        setFirstName(user.firstName);
+        setLastName(user.lastName);
+        setDateOfBirth(user.dateOfBirth);
+        setPhoneNumber(user.phoneNumber);
+        setUser(user.uid)
+      }
+    };
+  
+    fetchUser();
+  }, []);
+
+  
 
   const handleChange = (key: keyof typeof medication, value: string) => {
     setMedication((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = () => {
-    if (!medication.name || !medication.dosage || !medication.time) {
+
+
+  const handleSubmit = async () => {
+    if (!medication.name || !medication.dosage || !medication.time ) {
       alert("Please fill in all required fields.");
       return;
     }
+    try {
+
+      const docRef = await addDoc(collection(db, "usersMedication"), {
+            userId : user,
+            name: medication.name,
+            dosage: medication.dosage,
+            addedAt: new Date()
+        });
+    console.log("Medication added with ID:", docRef.id);
+
+
+    }catch (error) {
+    console.error("Error adding medication:", error);
+}
+    
     alert("Medication added successfully!");
     router.replace("/medications");
   };
+
+
+
+
+
+
+
+
+  
 
   return (
     <View style={styles.container}>
@@ -87,19 +147,18 @@ const styles = StyleSheet.create({
   },
   header: {
     width: "100%",
-    height: 110,
+    height: 120,
     backgroundColor: "#CDD8F5",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 25,
-
-},
-logo: {
+    marginBottom: 20,
+  },
+  logo: {
     width: 100,
     height: 100,
-    paddingTop: 20,
     resizeMode: "contain",
-},
+  },
   scrollContainer: {
     paddingHorizontal: 20,
     paddingBottom: 30,
