@@ -99,12 +99,6 @@ export default function MedicationsPage() {
       <View style={styles.divider} />
 
       <ScrollView contentContainerStyle={styles.scrollViewContent}>{renderContent()}</ScrollView>
-<<<<<<< HEAD
-      <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonText}>+</Text>
-      </TouchableOpacity>
->>>>>>> parent of 8e31ccd (login, Register, Navigation, addMedication)
-=======
 
 
 
@@ -113,7 +107,6 @@ export default function MedicationsPage() {
         >
         <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
->>>>>>> be4b86c15550a7bb0123c50fe54439c642171988
     </View>
   );
 }
