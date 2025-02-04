@@ -13,13 +13,13 @@ export default function Layout() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsAuthenticated(!!user);
       if (!user) {
-        router.replace("/"); // Redirige vers la page de connexion si l'utilisateur n'est pas connecté
+        router.replace("/"); 
       }
     });
     return () => unsubscribe();
   }, []);
 
-  if (isAuthenticated === null) return null; // Empêche l'affichage tant que l'état de connexion n'est pas déterminé
+  if (isAuthenticated === null) return null;
 
   return (
     <GestureHandlerRootView style={styles.container}>
@@ -27,16 +27,16 @@ export default function Layout() {
       {isAuthenticated && (
         <View style={styles.navbar}>
           <TouchableOpacity onPress={() => router.replace("/Home")}>
-            <Image source={require("./home.png")} style={styles.icon} />
+            <Image source={require("./icon/home.png")} style={styles.icon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.replace("/medications")}>
-            <Image source={require("./medication.png")} style={styles.icon} />
+            <Image source={require("./icon/medication.png")} style={styles.icon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.replace("/stats")}>
-            <Image source={require("./stats.png")} style={styles.icon} />
+            <Image source={require("./icon/stats.png")} style={styles.icon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.replace("/profile")}>
-            <Image source={require("./profile.png")} style={styles.icon} />
+            <Image source={require("./icon/profile.png")} style={styles.icon} />
           </TouchableOpacity>
         </View>
       )}
