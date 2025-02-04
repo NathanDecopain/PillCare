@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { useRouter } from "expo-router"; // Remplace useNavigation par useRouter
+import { useRouter } from "expo-router"; 
 import { auth } from './config/firebase-config';
 import { db } from './config/firebase-config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -14,7 +14,7 @@ export default function Login() {
   const [success, setSuccess] = useState('');
 
   const googleProvider = new GoogleAuthProvider();
-  const router = useRouter(); // Utilise useRouter pour la navigation
+  const router = useRouter(); 
 
   const handleEmailLogin = async () => {
     try {
@@ -29,7 +29,7 @@ export default function Login() {
       AsyncStorage.setItem("user", JSON.stringify(user));
       console.log(user);
       
-      router.replace("/Home"); // 🔹 Redirige vers la page Home après la connexion réussie
+      router.replace("/Home"); 
     } catch (err) {
       setError('Échec de la connexion. Vérifiez vos identifiants.');
     }
@@ -57,7 +57,7 @@ export default function Login() {
         });
       }
 
-      router.replace("/Home"); // 🔹 Redirige vers la page Home après connexion avec Google
+      router.replace("/Home"); 
     } catch (error) {
       console.error('Error during Google sign-in:', error);
       setError('Une erreur est survenue lors de la connexion avec Google.');
@@ -68,7 +68,7 @@ export default function Login() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Image source={require("./logo.png")} style={styles.logo} />
+        <Image source={require("./icon/logo.png")} style={styles.logo} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -130,13 +130,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 25,
-  },
-  logo: {
+
+},
+logo: {
     width: 100,
     height: 100,
     paddingTop: 20,
     resizeMode: "contain",
-  },
+},
   scrollContainer: {
     paddingHorizontal: 20,
     paddingBottom: 30,
