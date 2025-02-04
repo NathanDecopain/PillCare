@@ -5,8 +5,6 @@ import { useRouter } from "expo-router";
 import { db } from "./config/firebase-config";
 import { collection, addDoc, onSnapshot, getDocs, setDoc, doc } from "firebase/firestore";
 
-
-
 const { width } = Dimensions.get("window");
 
 const medications = [
@@ -24,10 +22,6 @@ export default function MedicationsPage() {
   const [currentUser, setCurrentUser] = useState();
   const [medicationList, setMedicationList] = useState([]);
   const router = useRouter();
-
-
-  
-  
 
   const handleItemPress = (item: any) => {
     if (activeTab === "Medications") {
@@ -51,13 +45,13 @@ export default function MedicationsPage() {
           email: item.email,
           phone: item.phone,
           hospital: item.hospital,
-          languages: item.languages, 
-          availability: item.availability, 
+          languages: item.languages,
+          availability: item.availability,
         },
       });
     }
   };
-  
+
 
   const renderContent = () => {
     const data = activeTab === "Medications" ? medications : doctors;
@@ -79,7 +73,7 @@ export default function MedicationsPage() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Image source={require("./logo.png")} style={styles.logo} />
+        <Image source={require("./icon/logo.png")} style={styles.logo} />
       </View>
 
       {/* Tabs */}
@@ -100,13 +94,11 @@ export default function MedicationsPage() {
 
       <ScrollView contentContainerStyle={styles.scrollViewContent}>{renderContent()}</ScrollView>
 
-
-
       <TouchableOpacity style={styles.addButton}
-          onPress={() => router.push("/addMedication")}
-        >
+        onPress={() => router.push("/medications/addMedication")}
+      >
         <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -118,7 +110,7 @@ const styles = StyleSheet.create({
   },
   header: {
     width: "100%",
-    height: 120,
+    height: 110,
     backgroundColor: "#CDD8F5",
     justifyContent: "center",
     alignItems: "center",
