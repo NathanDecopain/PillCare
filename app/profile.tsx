@@ -23,12 +23,12 @@ export default function ProfilePage() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Image source={require("./logo.png")} style={styles.logo} />
+        <Image source={require("./icon/logo.png")} style={styles.logo} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.profileContainer}>
-          <Image source={require("./userPfp.jpg")} style={styles.profileImage} />
+          <Image source={require("./icon/userPfp.jpg")} style={styles.profileImage} />
           <Text style={styles.name}>Jonathan Dubois</Text>
         </View>
 
@@ -81,17 +81,19 @@ const styles = StyleSheet.create({
   },
   header: {
     width: "100%",
-    height: 120,
+    height: 110,
     backgroundColor: "#CDD8F5",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 25,
-  },
-  logo: {
+
+},
+logo: {
     width: 100,
     height: 100,
+    paddingTop: 20,
     resizeMode: "contain",
-  },
+},
   scrollContent: {
     paddingTop: 20,
     paddingHorizontal: 20,

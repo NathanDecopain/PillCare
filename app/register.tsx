@@ -48,7 +48,7 @@ export default function Register() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Image source={require("./logo.png")} style={styles.logo} />
+        <Image source={require("./icon/logo.png")} style={styles.logo} />
       </View>
 
       {/* ScrollView pour eviter le débordement */}
