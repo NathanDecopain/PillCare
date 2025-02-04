@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-import React from "react";
->>>>>>> parent of 8e31ccd (login, Register, Navigation, addMedication)
 import { View, Text, StyleSheet, Image, Dimensions, ScrollView } from "react-native";
 import "react-native-gesture-handler";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -15,7 +11,6 @@ const { width } = Dimensions.get("window");
 
 export default function ProfilePage() {
   const router = useRouter(); 
-<<<<<<< HEAD
 
   const [userEmail, setUserEmail] = useState(null);
   const [firstName, setFirstName] = useState(null);
@@ -38,8 +33,6 @@ export default function ProfilePage() {
 
   fetchUser();
 }, []);
-=======
->>>>>>> parent of 8e31ccd (login, Register, Navigation, addMedication)
 
   return (
     <View style={styles.container}>

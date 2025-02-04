@@ -1,22 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, Button, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { useRouter } from "expo-router"; // Remplace useNavigation par useRouter
 import { auth } from './config/firebase-config';
 import { db } from './config/firebase-config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-
-
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
 
   const googleProvider = new GoogleAuthProvider();
   const router = useRouter(); // Utilise useRouter pour la navigation
@@ -30,6 +25,7 @@ export default function Login() {
         setError("Votre adresse courriel n'a pas été vérifiée. Veuillez vérifier vos emails.");
         return;
       }
+
       AsyncStorage.setItem("user", JSON.stringify(user));
       console.log(user);
       
@@ -39,7 +35,6 @@ export default function Login() {
     }
   };
 
-
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -48,11 +43,11 @@ export default function Login() {
         setError("Votre adresse courriel n'a pas été vérifiée. Veuillez vérifier vos emails.");
         return;
       }
-  
+
       // Check if the user exists in Firestore
       const userRef = doc(db, 'users', user.uid);
       const userSnapshot = await getDoc(userRef);
-  
+
       if (!userSnapshot.exists()) {
         // Create a new profile for the user
         await setDoc(userRef, {
@@ -69,29 +64,15 @@ export default function Login() {
     }
   };
 
-
-
   return (
-    <View>
-      <TextInput
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Enter your email"
-      />
-      <TextInput
-        value={password}
-        onChangeText={setPassword}
-        placeholder="Enter your password"
-      />
-       {error ? <Text>{error}</Text> : null}
-      {success ? <Text>{success}</Text> : null}
-      <Button
-        title="Login"
-        onPress={handleEmailLogin}
-      />
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Image source={require("./logo.png")} style={styles.logo} />
+      </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.title}>Log In</Text>
+        <Text style={styles.title}>Connexion</Text>
 
         {/* Email */}
         <Text style={styles.label}>Email</Text>
@@ -104,7 +85,7 @@ export default function Login() {
         />
 
         {/* Mot de passe */}
-        <Text style={styles.label}>Password</Text>
+        <Text style={styles.label}>Mot de passe</Text>
         <TextInput
           value={password}
           onChangeText={setPassword}
@@ -113,22 +94,23 @@ export default function Login() {
           secureTextEntry
         />
 
-   
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {success ? <Text style={styles.success}>{success}</Text> : null}
 
         {/* Bouton Connexion */}
         <TouchableOpacity style={styles.button} onPress={handleEmailLogin}>
-          <Text style={styles.buttonText}>Log in</Text>
+          <Text style={styles.buttonText}>Se connecter</Text>
         </TouchableOpacity>
 
         {/* Bouton Connexion avec Google */}
         <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignIn}>
-          <Text style={styles.googleButtonText}>Log in with Google</Text>
+          <Text style={styles.googleButtonText}>Continuer avec Google</Text>
         </TouchableOpacity>
 
         {/* 🔹 Redirection vers l'inscription */}
         <TouchableOpacity onPress={() => router.push("/register")} style={styles.registerLink}>
           <Text style={styles.registerText}>
-            Don't have an account ? <Text style={styles.registerTextBold}>Sign up</Text>
+            Pas encore de compte ? <Text style={styles.registerTextBold}>Inscrivez-vous</Text>
           </Text>
         </TouchableOpacity>
       </ScrollView>
