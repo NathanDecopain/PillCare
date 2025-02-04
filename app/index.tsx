@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, Button, TextInput } from 'react-native';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { useRouter } from "expo-router"; // Remplace useNavigation par useRouter
 import { auth } from './config/firebase-config';
 import { db } from './config/firebase-config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
 
   const googleProvider = new GoogleAuthProvider();
   const router = useRouter(); // Utilise useRouter pour la navigation
@@ -25,7 +30,6 @@ export default function Login() {
         setError("Votre adresse courriel n'a pas été vérifiée. Veuillez vérifier vos emails.");
         return;
       }
-
       AsyncStorage.setItem("user", JSON.stringify(user));
       console.log(user);
       
@@ -35,6 +39,7 @@ export default function Login() {
     }
   };
 
+
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -43,11 +48,11 @@ export default function Login() {
         setError("Votre adresse courriel n'a pas été vérifiée. Veuillez vérifier vos emails.");
         return;
       }
-
+  
       // Check if the user exists in Firestore
       const userRef = doc(db, 'users', user.uid);
       const userSnapshot = await getDoc(userRef);
-
+  
       if (!userSnapshot.exists()) {
         // Create a new profile for the user
         await setDoc(userRef, {
@@ -64,12 +69,26 @@ export default function Login() {
     }
   };
 
+
+
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Image source={require("./logo.png")} style={styles.logo} />
-      </View>
+    <View>
+      <TextInput
+        value={email}
+        onChangeText={setEmail}
+        placeholder="Enter your email"
+      />
+      <TextInput
+        value={password}
+        onChangeText={setPassword}
+        placeholder="Enter your password"
+      />
+       {error ? <Text>{error}</Text> : null}
+      {success ? <Text>{success}</Text> : null}
+      <Button
+        title="Login"
+        onPress={handleEmailLogin}
+      />
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Text style={styles.title}>Log In</Text>
@@ -94,8 +113,7 @@ export default function Login() {
           secureTextEntry
         />
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-        {success ? <Text style={styles.success}>{success}</Text> : null}
+   
 
         {/* Bouton Connexion */}
         <TouchableOpacity style={styles.button} onPress={handleEmailLogin}>

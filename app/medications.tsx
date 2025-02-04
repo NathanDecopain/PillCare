@@ -6,6 +6,7 @@ import { db } from "./config/firebase-config";
 import { collection, addDoc, onSnapshot, getDocs, setDoc, doc } from "firebase/firestore";
 
 
+
 const { width } = Dimensions.get("window");
 
 const medications = [
@@ -19,15 +20,18 @@ const doctors = [
 ];
 
 export default function MedicationsPage() {
-
   const [activeTab, setActiveTab] = useState<"Medications" | "Doctors">("Medications");
   const [currentUser, setCurrentUser] = useState();
   const [medicationList, setMedicationList] = useState([]);
   const router = useRouter();
 
+
+  
+  
+
   const handleItemPress = (item: any) => {
     if (activeTab === "Medications") {
-      router.replace({
+      router.push({
         pathname: "/medications/details",
         params: {
           name: item.name,
@@ -39,7 +43,7 @@ export default function MedicationsPage() {
         },
       });
     } else {
-      router.replace({
+      router.push({
         pathname: "/docteur/profile",
         params: {
           name: item.name,
@@ -95,9 +99,20 @@ export default function MedicationsPage() {
       <View style={styles.divider} />
 
       <ScrollView contentContainerStyle={styles.scrollViewContent}>{renderContent()}</ScrollView>
-      <TouchableOpacity style={styles.addButton} onPress={() => router.replace("/medications/addMedication")}>
-        <Ionicons name="add" size={30} color="#fff" />
+<<<<<<< HEAD
+
+
+
+      <TouchableOpacity style={styles.addButton}
+          onPress={() => router.push("/addMedication")}
+        >
+        <Text style={styles.addButtonText}>+</Text>
+        </TouchableOpacity>
+=======
+      <TouchableOpacity style={styles.addButton}>
+        <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
+>>>>>>> parent of 8e31ccd (login, Register, Navigation, addMedication)
     </View>
   );
 }

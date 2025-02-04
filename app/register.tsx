@@ -53,7 +53,7 @@ export default function Register() {
 
       {/* ScrollView pour eviter le débordement */}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.title}>Sign up</Text>
+        <Text style={styles.title}>Inscription</Text>
 
         {/* Email */}
         <Text style={styles.label}>Email</Text>
@@ -66,7 +66,7 @@ export default function Register() {
         />
 
         {/* Mot de passe */}
-        <Text style={styles.label}>Password</Text>
+        <Text style={styles.label}>Mot de passe</Text>
         <TextInput
           value={password}
           onChangeText={setPassword}
@@ -76,7 +76,7 @@ export default function Register() {
         />
 
         {/* Confirmation du mot de passe */}
-        <Text style={styles.label}>Confirm password</Text>
+        <Text style={styles.label}>Confirmer le mot de passe</Text>
         <TextInput
           value={confirmPassword}
           onChangeText={setConfirmPassword}
@@ -89,7 +89,7 @@ export default function Register() {
         {success ? <Text style={styles.success}>{success}</Text> : null}
 
         <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>Sign up</Text>
+          <Text style={styles.buttonText}>Créer un compte</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -169,4 +169,3 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
 });
-

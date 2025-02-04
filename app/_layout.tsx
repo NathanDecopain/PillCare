@@ -23,23 +23,28 @@ export default function Layout() {
 
   return (
     <GestureHandlerRootView style={styles.container}>
+      {/* Ensure the Stack is properly placed to handle page navigation */}
       <Stack screenOptions={{ headerShown: false }} />
-      {isAuthenticated && (
-        <View style={styles.navbar}>
-          <TouchableOpacity onPress={() => router.replace("/Home")}>
-            <Image source={require("./home.png")} style={styles.icon} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.replace("/medications")}>
-            <Image source={require("./medication.png")} style={styles.icon} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.replace("/stats")}>
-            <Image source={require("./stats.png")} style={styles.icon} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.replace("/profile")}>
-            <Image source={require("./profile.png")} style={styles.icon} />
-          </TouchableOpacity>
-        </View>
-      )}
+      <View style={styles.navbar}>
+        <TouchableOpacity onPress={() => router.replace("/")}>
+          <Text style={styles.navItem}>Login</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.replace("./register")}>
+          <Text style={styles.navItem}>Register</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.replace("/Home")}>
+          <Text style={styles.navItem}>Home</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.replace("/medications")}>
+          <Text style={styles.navItem}>Medication</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.replace("/stats")}>
+          <Text style={styles.navItem}>Stats</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.replace("/profile")}>
+          <Text style={styles.navItem}>Profile</Text>
+        </TouchableOpacity>
+      </View>
     </GestureHandlerRootView>
   );
 }

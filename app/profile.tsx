@@ -1,13 +1,45 @@
+<<<<<<< HEAD
+=======
 import React from "react";
-import {
-  View, Text, StyleSheet, Image, Dimensions, ScrollView, TouchableOpacity
-} from "react-native";
+>>>>>>> parent of 8e31ccd (login, Register, Navigation, addMedication)
+import { View, Text, StyleSheet, Image, Dimensions, ScrollView } from "react-native";
+import "react-native-gesture-handler";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useEffect } from "react";
+
+
 
 const { width } = Dimensions.get("window");
 
 export default function ProfilePage() {
-  const router = useRouter();
+  const router = useRouter(); 
+<<<<<<< HEAD
+
+  const [userEmail, setUserEmail] = useState(null);
+  const [firstName, setFirstName] = useState(null);
+  const [lastName, setLastName] = useState(null);
+  const [dateOfBirth, setDateOfBirth] = useState(null);
+  const [phoneNumber, setPhoneNumber] = useState(null);
+
+  useEffect(() => {
+  const fetchUser = async () => {
+    const userData = await AsyncStorage.getItem("user");
+    if (userData) {
+      const user = JSON.parse(userData);
+      setUserEmail(user.email); // Firebase Auth user email
+      setFirstName(user.firstName);
+      setLastName(user.lastName);
+      setDateOfBirth(user.dateOfBirth);
+      setPhoneNumber(user.phoneNumber);
+    }
+  };
+
+  fetchUser();
+}, []);
+=======
+>>>>>>> parent of 8e31ccd (login, Register, Navigation, addMedication)
 
   return (
     <View style={styles.container}>
@@ -19,39 +51,34 @@ export default function ProfilePage() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.profileContainer}>
           <Image source={require("./userPfp.jpg")} style={styles.profileImage} />
-          <Text style={styles.name}>Jonathan Dubois</Text>
-          <Text style={styles.subtitle}>john.dubois@hotmail.com</Text>
+          <Text style={styles.name}>{firstName} {lastName}</Text>
+          <Text style={styles.subtitle}>{userEmail}</Text>
         </View>
 
         {/* Information Section */}
         <View style={styles.infoSection}>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Phone:</Text>
-            <Text style={styles.infoValue}>+1 (514) 467-8263</Text>
+            <Text style={styles.infoValue}>{phoneNumber}</Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Date of Birth:</Text>
-            <Text style={styles.infoValue}>January 9, 1993</Text>
+            <Text style={styles.infoValue}>{dateOfBirth}</Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>About Me:</Text>
             <Text style={styles.infoValue}>
-              Je sais pas si cette section est nécessaire, je vais la garder pour l'instant.
+              Je sais pas si cette section est necessaire, je vais la garder pour l'instant
             </Text>
           </View>
         </View>
 
-        {/* Profile Actions */}
-        <TouchableOpacity style={styles.actionButton} onPress={() => router.replace("/editProfile")}>
-          <Text style={styles.actionButtonText}>Edit Profile</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButton} onPress={() => router.replace("/medications")}>
-          <Text style={styles.actionButtonText}>View My Medications</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.logoutButton} onPress={() => router.replace("/")}>
-          <Text style={styles.logoutButtonText}>Logout</Text>
+        {/* Edit Profile Button */}
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={() => router.push("/editProfile")}
+        >
+          <Text style={styles.editButtonText}>Edit Profile</Text>
         </TouchableOpacity>
 
       </ScrollView>
@@ -66,12 +93,11 @@ const styles = StyleSheet.create({
   },
   header: {
     width: "100%",
-    height: 110,
+    height: 120,
     backgroundColor: "#CDD8F5",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 25,
-
   },
   logo: {
     width: 100,
@@ -80,9 +106,9 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   scrollContent: {
-    paddingTop: 20,
+    paddingTop: 20, 
     paddingHorizontal: 20,
-    paddingBottom: 30,
+    paddingBottom: 30, 
   },
   profileContainer: {
     alignItems: "center",
@@ -130,40 +156,21 @@ const styles = StyleSheet.create({
     color: "#666",
     marginTop: 5,
   },
-  actionButton: {
+  editButton: {
     backgroundColor: "#7B83EB",
     borderRadius: 30,
     width: width * 0.9,
     alignSelf: "center",
     paddingVertical: 15,
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 5,
   },
-  actionButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  logoutButton: {
-    backgroundColor: "#E57373",
-    borderRadius: 30,
-    width: width * 0.9,
-    alignSelf: "center",
-    paddingVertical: 15,
-    alignItems: "center",
-    marginTop: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  logoutButtonText: {
+  editButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
