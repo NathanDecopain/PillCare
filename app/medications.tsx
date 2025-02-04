@@ -99,16 +99,6 @@ export default function MedicationsPage() {
       <View style={styles.divider} />
 
       <ScrollView contentContainerStyle={styles.scrollViewContent}>{renderContent()}</ScrollView>
-<<<<<<< HEAD
-
-
-
-      <TouchableOpacity style={styles.addButton}
-          onPress={() => router.push("/addMedication")}
-        >
-        <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-=======
       <TouchableOpacity style={styles.addButton}>
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>

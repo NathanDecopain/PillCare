@@ -1,6 +1,5 @@
+import React, { useState } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions } from "react-native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useState, useEffect } from "react";
 
 const { width } = Dimensions.get("window");
 
@@ -9,36 +8,6 @@ export default function EditProfilePage() {
   const [email, setEmail] = useState("john.dubois@hotmail.com");
   const [phone, setPhone] = useState("+1 (514) 467-8263");
   const [birthDate, setBirthDate] = useState("January 9, 1993");
-
-
-  const [userEmail, setUserEmail] = useState(null);
-  const [firstName, setFirstName] = useState(null);
-  const [lastName, setLastName] = useState(null);
-  const [dateOfBirth, setDateOfBirth] = useState(null);
-  const [phoneNumber, setPhoneNumber] = useState(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const userData = await AsyncStorage.getItem("user");
-      if (userData) {
-        const user = JSON.parse(userData);
-        setUserEmail(user.email); // Firebase Auth user email
-        setFirstName(user.firstName);
-        setLastName(user.lastName);
-        setDateOfBirth(user.dateOfBirth);
-        setPhoneNumber(user.phoneNumber);
-      }
-    };
-  
-    fetchUser();
-  }, []);
-
-
-
-  
-
-
-
 
   return (
     <View style={styles.container}>

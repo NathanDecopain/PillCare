@@ -1,45 +1,16 @@
 <<<<<<< HEAD
 =======
 import React from "react";
->>>>>>> parent of 8e31ccd (login, Register, Navigation, addMedication)
 import { View, Text, StyleSheet, Image, Dimensions, ScrollView } from "react-native";
 import "react-native-gesture-handler";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useState, useEffect } from "react";
-
 
 
 const { width } = Dimensions.get("window");
 
 export default function ProfilePage() {
   const router = useRouter(); 
-<<<<<<< HEAD
-
-  const [userEmail, setUserEmail] = useState(null);
-  const [firstName, setFirstName] = useState(null);
-  const [lastName, setLastName] = useState(null);
-  const [dateOfBirth, setDateOfBirth] = useState(null);
-  const [phoneNumber, setPhoneNumber] = useState(null);
-
-  useEffect(() => {
-  const fetchUser = async () => {
-    const userData = await AsyncStorage.getItem("user");
-    if (userData) {
-      const user = JSON.parse(userData);
-      setUserEmail(user.email); // Firebase Auth user email
-      setFirstName(user.firstName);
-      setLastName(user.lastName);
-      setDateOfBirth(user.dateOfBirth);
-      setPhoneNumber(user.phoneNumber);
-    }
-  };
-
-  fetchUser();
-}, []);
-=======
->>>>>>> parent of 8e31ccd (login, Register, Navigation, addMedication)
 
   return (
     <View style={styles.container}>
