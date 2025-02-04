@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import React from "react";
+>>>>>>> parent of 8e31ccd (login, Register, Navigation, addMedication)
 import { View, Text, StyleSheet, Image, Dimensions, ScrollView } from "react-native";
 import "react-native-gesture-handler";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -6,10 +10,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect } from "react";
 
 
+
 const { width } = Dimensions.get("window");
 
 export default function ProfilePage() {
   const router = useRouter(); 
+<<<<<<< HEAD
 
   const [userEmail, setUserEmail] = useState(null);
   const [firstName, setFirstName] = useState(null);
@@ -32,6 +38,8 @@ export default function ProfilePage() {
 
   fetchUser();
 }, []);
+=======
+>>>>>>> parent of 8e31ccd (login, Register, Navigation, addMedication)
 
   return (
     <View style={styles.container}>

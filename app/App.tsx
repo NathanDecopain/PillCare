@@ -3,7 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { getDoc, doc } from 'firebase/firestore';
 import { db, auth } from './config/firebase-config';
-import { User } from "firebase/auth";
+import { User } from "firebase/auth"; // Import the User type
+
+
+
 
 
 
