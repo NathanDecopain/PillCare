@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, Dimensions, FlatList, TouchableOpacity, ScrollView } from "react-native";
+import {router} from "expo-router";
 
 const { width } = Dimensions.get("window"); 
 
@@ -60,7 +61,7 @@ export default function HomePage() {
       </ScrollView>
 
       <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonText}>+</Text>
+        <Text style={styles.addButtonText} onPress={() => router.push("/history/addHistoryEntryForm")}>+</Text>
       </TouchableOpacity>
     </View>
   );
