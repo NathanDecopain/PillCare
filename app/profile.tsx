@@ -30,6 +30,9 @@ export default function ProfilePage() {
   };
   fetchUser();
 }, []);
+
+
+
   return (
     <View style={styles.container}>
       {/* Header */}

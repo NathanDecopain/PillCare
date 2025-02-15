@@ -3,7 +3,9 @@ import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { db } from "./config/firebase-config";
-import { collection, addDoc, onSnapshot, getDocs, setDoc, doc, query } from "firebase/firestore";
+import { collection, addDoc, onSnapshot, getDocs, setDoc, doc, query, where } from "firebase/firestore";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const { width } = Dimensions.get("window");
 
@@ -22,7 +24,9 @@ export default function MedicationsPage() {
   const [currentUser, setCurrentUser] = useState();
   const [medicationList, setMedicationList] = useState<Medication[]>([]);
   const router = useRouter();
+  const [userId, setUserID] = useState();
 
+  
   type Medication = {
     name: string;       // Add this line
     dosage: string;
@@ -34,8 +38,23 @@ export default function MedicationsPage() {
 
 
   useEffect(()=> {
-    fetchMedications();
-    });
+    const fetchUser = async () => {
+      const userData = await AsyncStorage.getItem("user");
+      if (userData) {
+        const user = JSON.parse(userData);
+        setUserID(user.uid)
+
+      }
+    };
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      fetchMedications();
+    }
+  }, [userId]); 
+
 
   const handleItemPress = (item: any) => {
     if (activeTab === "Medications") {
@@ -69,7 +88,17 @@ export default function MedicationsPage() {
 
   const fetchMedications = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "usersMedication"));
+      if (!userId) {
+        console.error("User ID is undefined or null");
+        return; // Prevent the query if userId is invalid
+      }
+  
+      const q = query(
+        collection(db, "usersMedication"),
+        where("userId", "==", userId)
+      );
+  
+      const querySnapshot = await getDocs(q);
       const medicationList = querySnapshot.docs.map(doc => doc.data() as Medication);
       setMedicationList(medicationList);
     } catch (error) {

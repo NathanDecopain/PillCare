@@ -40,6 +40,7 @@ export default function Login() {
           lastName: userData.lastName,
           dateOfBirth: userData.dateOfBirth,
           phoneNumber: userData.phoneNumber,
+          userID: user.uid
         };
   
         await AsyncStorage.setItem("user", JSON.stringify(userDetails));
