@@ -77,8 +77,16 @@ const handleLogout = async () => {
         >
           <Text style={styles.editButtonText}>Edit Profile</Text>
         </TouchableOpacity>
-                {/* Bouton de déconnexion */}
-                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+
+
+        <TouchableOpacity style={styles.button} onPress={() => router.replace("/medications")}>
+          <Text style={styles.buttonText}>My Medications</Text>
+        </TouchableOpacity>
+
+      
+
+        {/* Bouton de déconnexion */}
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Log Out</Text>
         </TouchableOpacity>
 
@@ -192,6 +200,25 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   logoutButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  button: {
+    backgroundColor: "#7B83EB",
+    borderRadius: 30,
+    width: width * 0.9,
+    alignSelf: "center",
+    paddingVertical: 15,
+    alignItems: "center",
+    marginTop: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  buttonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
