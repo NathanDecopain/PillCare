@@ -4,6 +4,12 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect } from "react";
+import { signOut } from "firebase/auth";
+import { db, storage, auth } from "./config/firebase-config";
+
+
+
+
 
 
 const { width } = Dimensions.get("window");
@@ -30,6 +36,15 @@ export default function ProfilePage() {
   };
   fetchUser();
 }, []);
+
+const handleLogout = async () => {
+  try {
+    await signOut(auth);
+    router.replace("/register");
+  } catch (error) {
+    console.error("Erreur de déconnexion:", error);
+  }
+};
 
 
 
@@ -67,6 +82,10 @@ export default function ProfilePage() {
           onPress={() => router.push("/editProfile")}
         >
           <Text style={styles.editButtonText}>Edit Profile</Text>
+        </TouchableOpacity>
+                {/* Bouton de déconnexion */}
+                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutButtonText}>Log Out</Text>
         </TouchableOpacity>
 
       </ScrollView>
