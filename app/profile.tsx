@@ -7,11 +7,6 @@ import React, { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
 import { db, storage, auth } from "./config/firebase-config";
 
-
-
-
-
-
 const { width } = Dimensions.get("window");
 
 export default function ProfilePage() {
@@ -45,7 +40,6 @@ const handleLogout = async () => {
     console.error("Erreur de déconnexion:", error);
   }
 };
-
 
 
   return (
@@ -178,6 +172,26 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   editButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  logoutButton: {
+    backgroundColor: "#E57373",
+    borderRadius: 30,
+    width: width * 0.9,
+    alignSelf: "center",
+    paddingVertical: 15,
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  logoutButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
