@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions } from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 
@@ -27,6 +28,8 @@ export default function MedicationDetails() {
     const handleChange = (key: keyof Medication, value: string) => {
         setMedication((prev) => ({ ...prev, [key]: value }));
     };
+    const navigation = useNavigation();
+
 
     return (
         <View style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -37,6 +40,10 @@ export default function MedicationDetails() {
 
             {/* Contenu principal */}
             <View style={styles.container}>
+                {/* Bouton de retour */}
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                    <Image source={require("../icon/retour.png")} style={styles.backIcon} />
+                </TouchableOpacity>
                 <View style={styles.form}>
                     <Text style={styles.label}>Medication Name</Text>
                     <TextInput
@@ -82,7 +89,7 @@ export default function MedicationDetails() {
                     />
                 </View>
 
-                {/* Save Button */}
+                {/* Bouton save */}
                 <TouchableOpacity style={styles.saveButton}>
                     <Text style={styles.saveButtonText}>Save</Text>
                 </TouchableOpacity>
@@ -114,6 +121,7 @@ const styles = StyleSheet.create({
     },
     form: {
         marginBottom: 20,
+        marginTop: 45
     },
     label: {
         fontSize: 16,
@@ -141,5 +149,18 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         color: "#fff",
+    },
+    backButton: {
+        position: "absolute",
+        top: 40,
+        left: 20,
+        zIndex: 10,
+    },
+    backIcon: {
+        width: 32,
+        height: 32,
+        resizeMode: "contain",
+        marginTop: -20,
+        marginLeft: -10
     },
 });

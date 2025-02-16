@@ -9,7 +9,7 @@ export default function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAuthenticated(!!user); // Vérifie si l'utilisateur est connecté
+      setIsAuthenticated(!!user); 
     });
     return () => unsubscribe();
   }, []);
@@ -19,7 +19,7 @@ export default function App() {
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#7B83EB" />
       </View>
-    ); // Affiche un chargement pendant la vérification
+    ); 
   }
 
   return <ExpoRoot context={require.context("./app")} />;

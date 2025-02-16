@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { db } from "./config/firebase-config";
-import { collection, addDoc, onSnapshot, getDocs, setDoc, doc, query, where } from "firebase/firestore";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { collection, addDoc, onSnapshot, getDocs, setDoc, doc } from "firebase/firestore";
+
 
 
 const { width } = Dimensions.get("window");
@@ -22,39 +22,12 @@ const doctors = [
 export default function MedicationsPage() {
   const [activeTab, setActiveTab] = useState<"Medications" | "Doctors">("Medications");
   const [currentUser, setCurrentUser] = useState();
-  const [medicationList, setMedicationList] = useState<Medication[]>([]);
+  const [medicationList, setMedicationList] = useState([]);
   const router = useRouter();
-  const [userId, setUserID] = useState();
+
 
   
-  type Medication = {
-    name: string;       // Add this line
-    dosage: string;
-    frequency: string;
-    time: string;
-    duration: string;
-    notes: string;
-  };
-
-
-  useEffect(()=> {
-    const fetchUser = async () => {
-      const userData = await AsyncStorage.getItem("user");
-      if (userData) {
-        const user = JSON.parse(userData);
-        setUserID(user.uid)
-
-      }
-    };
-    fetchUser();
-  }, []);
-
-  useEffect(() => {
-    if (userId) {
-      fetchMedications();
-    }
-  }, [userId]); 
-
+  
 
   const handleItemPress = (item: any) => {
     if (activeTab === "Medications") {
@@ -84,28 +57,7 @@ export default function MedicationsPage() {
       });
     }
   };
-
-
-  const fetchMedications = async () => {
-    try {
-      if (!userId) {
-        console.error("User ID is undefined or null");
-        return; // Prevent the query if userId is invalid
-      }
   
-      const q = query(
-        collection(db, "usersMedication"),
-        where("userId", "==", userId)
-      );
-  
-      const querySnapshot = await getDocs(q);
-      const medicationList = querySnapshot.docs.map(doc => doc.data() as Medication);
-      setMedicationList(medicationList);
-    } catch (error) {
-      console.error("Error fetching medications: ", error);
-    }
-  };
-
 
   const renderContent = () => {
     const data = activeTab === "Medications" ? medicationList : doctors;

@@ -1,17 +1,27 @@
 import { useLocalSearchParams } from "expo-router";
-import React from "react";
-import { View, Text, StyleSheet, Image, Dimensions, ScrollView } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Image, Dimensions, ScrollView, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 
 export default function DoctorProfile() {
     const params = useLocalSearchParams();
+    const navigation = useNavigation();
+
 
     return (
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
                 <Image source={require("../icon/logo.png")} style={styles.logo} />
+
+            </View>
+            <View>
+            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                <Image source={require("../icon/retour.png")} style={styles.backIcon} />
+            </TouchableOpacity>
+
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -120,5 +130,18 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: "#666",
         marginTop: 5,
+    },
+    backButton: {
+        position: "absolute",
+        top: 40,
+        left: 20,
+        zIndex: 10,
+    },
+    backIcon: {
+        width: 32,
+        height: 32,
+        resizeMode: "contain",
+        marginTop: -20,
+        marginLeft: -10
     },
 });

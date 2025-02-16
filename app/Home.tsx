@@ -1,65 +1,118 @@
 import React from "react";
 import { View, Text, StyleSheet, Dimensions, FlatList, TouchableOpacity, ScrollView } from "react-native";
-import {router} from "expo-router";
 
-const { width } = Dimensions.get("window"); 
-
-const dates = [
-  { day: "Tue", date: 22 },
-  { day: "Wed", date: 23 },
-  { day: "Thu", date: 24, selected: true },
-  { day: "Fri", date: 25 },
-  { day: "Sat", date: 26 },
-  { day: "Sun", date: 27 },
-  { day: "Mon", date: 28 },
-];
+const { width } = Dimensions.get("window");
 
 export default function HomePage() {
+  const [dates, setDates] = useState<{ day: string; date: number; fullDate: string; selected?: boolean; isToday?: boolean }[]>([]);
+  const [today, setToday] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+
+  const scrollViewRef = useRef<ScrollView>(null);
+  const todayIndexRef = useRef(0);
+
+  useEffect(() => {
+    const currentDate = new Date();
+    const formattedToday = currentDate.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    setToday(formattedToday);
+    setSelectedDate(formattedToday);
+    const generateDates = () => {
+      const generatedDates = [];
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 30);
+
+      for (let i = 0; i < 365; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+
+        const fullDate = date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+        const isToday = date.toDateString() === currentDate.toDateString();
+        if (isToday) todayIndexRef.current = i;
+
+        generatedDates.push({
+          day: date.toLocaleDateString("en-US", { weekday: "short" }),
+          date: date.getDate(),
+          fullDate,
+          isToday,
+        });
+      }
+
+      return generatedDates;
+    };
+
+    setDates(generateDates());
+  }, []);
+
+  const scrollToToday = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({
+        x: todayIndexRef.current * 60,
+        animated: true,
+      });
+      setSelectedDate(today);
+    }
+  };
+
+  // Fonction pour sélectionner une date et l'afficher
+  const selectDate = (dateString: string) => {
+    setSelectedDate(dateString);
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.textContainer}>
-          <Text style={styles.headerText}>Today</Text>
-          <Text style={styles.subText}>January 24</Text>
+          <TouchableOpacity onPress={scrollToToday}>
+            <Text style={styles.headerText}>Today</Text>
+          </TouchableOpacity>
+          <Text style={styles.subText}>{selectedDate}</Text>
         </View>
 
-        <FlatList
-          data={dates}
+        {/* Cercles avec jours à l'intérieur */}
+        <ScrollView
+          ref={scrollViewRef}
           horizontal
-          scrollEnabled
-          showsHorizontalScrollIndicator={false} 
-          showsVerticalScrollIndicator={false} 
-          bounces={false} 
-          contentContainerStyle={styles.dateList}
-          keyExtractor={(item) => item.date.toString()}
-          renderItem={({ item }) => (
-            <View
-              style={[
-                styles.dateCircle,
-                item.selected && styles.selectedDateCircle, 
-              ]}
-            >
-              <Text style={[styles.dateText, item.selected && styles.selectedDateText]}>
-                {item.date}
-              </Text>
-              <Text style={[styles.dayText, item.selected && styles.selectedDayText]}>
-                {item.day}
-              </Text>
-            </View>
-          )}
-        />
+          showsHorizontalScrollIndicator={false}
+        >
+          <View style={styles.dateScrollView}>
+            {dates.map((item) => (
+              <TouchableOpacity key={item.fullDate} onPress={() => selectDate(item.fullDate)}>
+                <View style={styles.dateWrapper}>
+                  <View style={[
+                    styles.dateCircle,
+                    item.isToday ? styles.todayCircle : item.fullDate === selectedDate && styles.selectedDateCircle
+                  ]}>
+                    <Text style={[
+                      styles.dayText,
+                      item.isToday ? styles.todayText : item.fullDate === selectedDate && styles.selectedDateText
+                    ]}>
+                      {item.day}
+                    </Text>
+                    <Text style={[
+                      styles.dateText,
+                      item.isToday ? styles.todayText : item.fullDate === selectedDate && styles.selectedDateText
+                    ]}>
+                      {item.date}
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
       </View>
 
+      {/* Contenu défilant */}
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <View style={styles.medicationContainer}>
-            <Text style={styles.medicationName}>Acetaminophen</Text>
-            <View style={styles.divider} />
-            <Text style={styles.medicationTime}>Taken 9:12pm</Text>
-          </View>
-
+        <View style={styles.medicationContainer}>
+          <Text style={styles.medicationName}>Acetaminophen</Text>
+          <View style={styles.divider} />
+          <Text style={styles.medicationTime}>Taken 9:12 pm</Text>
+        </View>
       </ScrollView>
 
+      {/* Bouton d'ajout */}
       <TouchableOpacity style={styles.addButton}>
         <Text style={styles.addButtonText} onPress={() => router.push("/history/addHistoryEntryForm")}>+</Text>
       </TouchableOpacity>
@@ -73,7 +126,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   header: {
-    width: width * 1.2, 
+    width: width * 1.2,
     height: width / 1.7,
     backgroundColor: "#CDD8F5",
     borderBottomLeftRadius: width / 2,
@@ -81,7 +134,8 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     paddingTop: 50,
     transform: [{ translateX: -(width * 0.1) }],
-    overflow: "hidden", 
+    overflow: "hidden",
+    
   },
   textContainer: {
     paddingLeft: 55,
@@ -89,20 +143,23 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#666",
   },
   subText: {
     fontSize: 16,
-    color: "#fff",
+    color: "#666",
     marginTop: 5,
     marginBottom: 10,
   },
-  dateList: {
-    justifyContent: "center", 
-    alignItems: "center", 
-    marginLeft: width * 0.1, 
-    marginTop: -15, 
-    paddingRight: width * 0.1, 
+  dateScrollView: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    marginBottom: 65,
+  },
+  dateWrapper: {
+    alignItems: "center",
+    marginHorizontal: 8,
   },
   dateCircle: {
     width: 45,
@@ -111,38 +168,41 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
-    marginHorizontal: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
   },
+  todayCircle: {
+    backgroundColor: "#7B83EB", 
+  },
   selectedDateCircle: {
-    backgroundColor: "#7B83EB",
+    backgroundColor: "#D3D3D3",
+  },
+  dayText: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#666",
+  },
+  todayText: {
+    color: "#fff",
+  },
+  selectedDateText: {
+    color: "#666",
   },
   dateText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#333",
-  },
-  selectedDateText: {
-    color: "#fff",
-  },
-  dayText: {
-    fontSize: 12,
     color: "#666",
   },
-  selectedDayText: {
-    color: "#fff",
-  },
   scrollViewContent: {
-    paddingBottom: 80, 
+    paddingBottom: 80,
   },
   medicationContainer: {
     height: 100,
     backgroundColor: "#7B83EB",
-    width: width * 0.90,
+    width: width * 0.9,
     alignSelf: "center",
     borderRadius: 30,
     paddingVertical: 20,

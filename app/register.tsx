@@ -5,6 +5,7 @@ import { db } from './config/firebase-config';
 import { doc, setDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth } from './config/firebase-config';
+import { router } from 'expo-router';
 
 export default function Register() {
   // Declaring state with useState
@@ -51,36 +52,35 @@ export default function Register() {
         <Image source={require("./icon/logo.png")} style={styles.logo} />
       </View>
 
-      {/* ScrollView pour eviter le débordement */}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.title}>Inscription</Text>
+        <Text style={styles.title}>Register</Text>
 
         {/* Email */}
         <Text style={styles.label}>Email</Text>
         <TextInput
           value={email}
           onChangeText={setEmail}
-          placeholder="Entrez votre email"
+          placeholder="Enter your email"
           style={styles.input}
           keyboardType="email-address"
         />
 
         {/* Mot de passe */}
-        <Text style={styles.label}>Mot de passe</Text>
+        <Text style={styles.label}>Password</Text>
         <TextInput
           value={password}
           onChangeText={setPassword}
-          placeholder="Entrez votre mot de passe"
+          placeholder="Enter your password"
           style={styles.input}
           secureTextEntry={true} // true pour encrypter le mot de passe
         />
 
         {/* Confirmation du mot de passe */}
-        <Text style={styles.label}>Confirmer le mot de passe</Text>
+        <Text style={styles.label}>Confirm your password</Text>
         <TextInput
           value={confirmPassword}
           onChangeText={setConfirmPassword}
-          placeholder="Confirmez votre mot de passe"
+          placeholder="Confirm your password"
           style={styles.input}
           secureTextEntry={true} // true pour encrypter le mot de passe
         />
@@ -89,8 +89,16 @@ export default function Register() {
         {success ? <Text style={styles.success}>{success}</Text> : null}
 
         <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>Créer un compte</Text>
+          <Text style={styles.buttonText}>Sign up</Text>
         </TouchableOpacity>
+
+        {/* Déjà un compte ? Connexion */}
+        <TouchableOpacity onPress={() => router.push("/")} style={styles.loginLink}>
+          <Text style={styles.loginText}>
+            Already have an account ? <Text style={styles.loginTextBold}>Log in</Text>
+          </Text>
+        </TouchableOpacity>
+
       </ScrollView>
     </View>
   );
@@ -168,4 +176,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
   },
+  loginLink: {
+    marginTop: 20,
+    alignItems: "center",
+  },
+  loginText: {
+    fontSize: 16,
+    color: "#666",
+  },
+  loginTextBold: {
+    color: "#7B83EB",
+    fontWeight: "bold",
+  },
+
 });
