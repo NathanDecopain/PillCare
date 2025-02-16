@@ -20,6 +20,8 @@ export default function AddMedication() {
     frequency: "Everyday",
     time: "08:00 AM",
     notes: "",
+    startDate: "",
+    type: ""
   });
   const [medicationName, setMedicationName] = useState();
   const [userEmail, setUserEmail] = useState(null);
@@ -40,7 +42,7 @@ export default function AddMedication() {
         setLastName(user.lastName);
         setDateOfBirth(user.dateOfBirth);
         setPhoneNumber(user.phoneNumber);
-        setUser(user.uid)
+        setUser(user.userID)
       }
     };
   
@@ -56,7 +58,7 @@ export default function AddMedication() {
 
 
   const handleSubmit = async () => {
-    if (!medication.name || !medication.dosage || !medication.time ) {
+    if (!medication.name || !medication.dosage || !medication.time) {
       alert("Please fill in all required fields.");
       return;
     }
@@ -66,7 +68,11 @@ export default function AddMedication() {
             userId : user,
             name: medication.name,
             dosage: medication.dosage,
-            addedAt: new Date()
+            time: new Date(),
+            startDate: new Date(),
+            notes: medication.notes,
+            frequency: new Date(), 
+            type: medication.type
         });
     console.log("Medication added with ID:", docRef.id);
 
@@ -100,6 +106,9 @@ export default function AddMedication() {
 
         <Text style={styles.label}>Medication Name</Text>
         <TextInput style={styles.input} placeholder="Enter medication name" value={medication.name} onChangeText={(text) => handleChange("name", text)}/>
+
+        <Text style={styles.label}>Medication Type</Text>
+        <TextInput style={styles.input} placeholder="Enter medication type" value={medication.type} onChangeText={(text) => handleChange("type", text)}/>
 
         <Text style={styles.label}>Dosage</Text>
         <TextInput style={styles.input} placeholder="Enter dosage (e.g., 500mg)" value={medication.dosage} onChangeText={(text) => handleChange("dosage", text)}/>
