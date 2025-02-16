@@ -6,12 +6,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User } from "firebase/auth";
 import { collection, addDoc, onSnapshot, getDocs, setDoc, doc } from "firebase/firestore";
 import { db } from "../config/firebase-config";
-<<<<<<< HEAD
 
 
 
-=======
->>>>>>> beri
 
 const { width } = Dimensions.get("window");
 
@@ -45,35 +42,23 @@ export default function AddMedication() {
         setLastName(user.lastName);
         setDateOfBirth(user.dateOfBirth);
         setPhoneNumber(user.phoneNumber);
-<<<<<<< HEAD
         setUser(user.userID)
-=======
-        setUser(user.uid)
->>>>>>> beri
       }
     };
   
     fetchUser();
   }, []);
-<<<<<<< HEAD
 
   
-=======
->>>>>>> beri
 
   const handleChange = (key: keyof typeof medication, value: string) => {
     setMedication((prev) => ({ ...prev, [key]: value }));
   };
 
-<<<<<<< HEAD
 
 
   const handleSubmit = async () => {
     if (!medication.name || !medication.dosage || !medication.time) {
-=======
-  const handleSubmit = async () => {
-    if (!medication.name || !medication.dosage || !medication.time ) {
->>>>>>> beri
       alert("Please fill in all required fields.");
       return;
     }
@@ -83,15 +68,12 @@ export default function AddMedication() {
             userId : user,
             name: medication.name,
             dosage: medication.dosage,
-<<<<<<< HEAD
             time: new Date(),
             startDate: new Date(),
+            endDate: new Date(),
             notes: medication.notes,
             frequency: new Date(), 
             type: medication.type
-=======
-            addedAt: new Date()
->>>>>>> beri
         });
     console.log("Medication added with ID:", docRef.id);
 
@@ -105,13 +87,6 @@ export default function AddMedication() {
   };
 
 
-
-
-
-
-
-
-  
 
   return (
     <View style={styles.container}>
