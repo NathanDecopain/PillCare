@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, StyleSheet, Dimensions, FlatList, TouchableOpacity, ScrollView } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableOpacity } from "react-native";
 
 const { width } = Dimensions.get("window");
 
@@ -114,7 +114,7 @@ export default function HomePage() {
 
       {/* Bouton d'ajout */}
       <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonText} onPress={() => router.push("/history/addHistoryEntryForm")}>+</Text>
+        <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
     </View>
   );
