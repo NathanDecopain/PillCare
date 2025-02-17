@@ -13,7 +13,7 @@ export default function Layout() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsAuthenticated(!!user);
       if (!user) {
-        router.replace("/"); 
+        router.replace("/authentication/login");
       }
     });
     return () => unsubscribe();
