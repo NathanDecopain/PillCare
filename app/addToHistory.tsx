@@ -34,8 +34,7 @@ export default function AddToHistory() {
             alert("Please choose a type of entry.");
         }
 
-        {/* Checks for medication entry */
-        }
+        {/* Checks for medication entry */}
         if (historyEntry.type === "medication" && !(historyEntry.dateTime && historyEntry.medicationId)) {
             alert("Please fill in all required fields.");
             return;
@@ -119,10 +118,12 @@ export default function AddToHistory() {
                 {/*Date and time picker*/}
                 <Text style={styles.label}>Time</Text>
                 <View style={styles.dateTimePickerWrapper}>
-                    <TouchableOpacity onPress={() => setShowDatePicker(true)}> {/* Show date picker when date is pressed */}
+                    {/* Show date picker when date is pressed */}
+                    <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                         <Text>{formatDate(historyEntry.dateTime)}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setShowTimePicker(true)}> {/* Show time picker when time is pressed */}
+                    {/* Show time picker when time is pressed */}
+                    <TouchableOpacity onPress={() => setShowTimePicker(true)}>
                         <Text>{formatTime(historyEntry.dateTime)}</Text>
                     </TouchableOpacity>
                 </View>
