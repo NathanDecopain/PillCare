@@ -5,9 +5,9 @@ import React from "react";
 import {Text} from "react-native";
 
 export default function TabLayout() {
-    const {user, loading} = useAuthContext();
+    const {session, loading} = useAuthContext();
 
-    if (!user) {
+    if (!session) {
         return <Redirect href="/login"/>;
     }
 

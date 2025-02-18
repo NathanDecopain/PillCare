@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableOpacity } from "react-native";
-import {router} from "expo-router";
+import {Redirect, router} from "expo-router";
+import {useAuthContext} from "@/contexts/AuthContext";
 
 const { width } = Dimensions.get("window");
 
@@ -11,6 +12,8 @@ export default function Home() {
 
   const scrollViewRef = useRef<ScrollView>(null);
   const todayIndexRef = useRef(0);
+
+  const {session} = useAuthContext();
 
   useEffect(() => {
     const currentDate = new Date();
@@ -114,7 +117,7 @@ export default function Home() {
       </ScrollView>
 
       {/* Bouton d'ajout */}
-      <TouchableOpacity style={styles.addButton} onPress={() => router.navigate("/addToHistory")}>
+      <TouchableOpacity style={styles.addButton} onPress={() => router.push("/addToHistory")}>
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
     </View>

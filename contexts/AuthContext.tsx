@@ -1,11 +1,11 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
-import {onAuthStateChanged, signInWithEmailAndPassword, signOut, User, UserCredential} from "firebase/auth";
+import {onAuthStateChanged, signInWithEmailAndPassword, signOut} from "firebase/auth";
 import {auth, db} from "config/firebase-config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {doc, getDoc} from "firebase/firestore";
 
 type AuthContext = {
-    user: User | null,
+    session: AppUser | null,
     loading: boolean,
     emailLogin: (email: string, password: string) => Promise<{ isLoggedIn: boolean, error: string | null }>,
     logout: () => void
@@ -19,19 +19,21 @@ const AuthContext = createContext<AuthContext | null>(null);
 export const AuthContextProvider = ({children}: {
     children: React.ReactNode
 }) => {
-    const [user, setUser] = useState<AppUser | null>(null); // User can be null if user is logged out
+    const [session, setSession] = useState<AppUser | null>(null); // User can be null if user is logged out
     const [loading, setLoading] = useState(true); // Access to check if user data has been fetched.
 
     // ON MOUNT / ON PROVIDER CONSUMPTION:
     useEffect(() => {
         // On provider consumption, start listening for auth state changes on the server.
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (!user) { // If user isn't logged in, remove user data from client async storage
+        const unsubscribe = onAuthStateChanged(auth, async (userCred) => {
+            if (!userCred) { // If user isn't logged in, remove user data from client async storage
                 await AsyncStorage.removeItem("user");
+                console.log("User disconnected.")
             } else {
-                const userDataString = await AsyncStorage.getItem("user");
-                if (userDataString) {
-                    setUser(JSON.parse(userDataString));
+                const sessionDataString = await AsyncStorage.getItem("user");
+                if (sessionDataString) {
+                    setSession(JSON.parse(sessionDataString));
+                    console.log(`Logged in as ${JSON.stringify(session)}`)
                 }
             }
             setLoading(false);
@@ -82,22 +84,28 @@ export const AuthContextProvider = ({children}: {
             userID: userCredential.user.uid
         };
 
-        await AsyncStorage.setItem("user", JSON.stringify(userDetails));
+        await AsyncStorage.setItem("user", JSON.stringify(userDetails), () => {
+            console.log("Stored user data in AsyncStorage.")
+        })
 
-        return {isLoggedIn: true, error: null}
+        const sessionDataString = await AsyncStorage.getItem("user");
+
+        setSession(JSON.parse(sessionDataString!));
+
+        return {isLoggedIn: true, error: null};
     }
     const logout = async () => {
         try {
             await signOut(auth);
             await AsyncStorage.removeItem("user");
-            setUser(null);
+            setSession(null);
         } catch (error) {
             console.error(`Logout error: ${error}`)
         }
     }
 
     return (
-        <AuthContext.Provider value={{user, loading, emailLogin, logout}}>
+        <AuthContext.Provider value={{session, loading, emailLogin, logout}}>
             {children}
         </AuthContext.Provider>
     )

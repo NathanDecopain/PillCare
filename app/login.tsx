@@ -28,7 +28,7 @@ export default function Login() {
 
       const {isLoggedIn, error} = await emailLogin(email, password);
 
-      isLoggedIn? router.navigate("/(tabs)/home") : setError(error || "Échec de la connexion. Vérifiez vos identifiants.")
+      isLoggedIn? router.navigate("/") : setError(error || "Échec de la connexion. Vérifiez vos identifiants.")
     } catch (err) {
       setError('Échec de la connexion. Vérifiez vos identifiants.');
     }
