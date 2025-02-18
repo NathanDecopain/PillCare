@@ -2,7 +2,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import {Redirect, Stack, Tabs} from 'expo-router';
 import {AuthContextProvider, useAuthContext} from "@/contexts/AuthContext";
 import React from "react";
-import {Text} from "react-native";
+import {Image, StyleSheet, Text} from "react-native";
 
 export default function TabLayout() {
     const {session, loading} = useAuthContext();
@@ -12,19 +12,22 @@ export default function TabLayout() {
     }
 
     return (
-        <Tabs screenOptions={{headerShown: false, tabBarActiveTintColor: 'blue'}}>
+        <Tabs screenOptions={{
+            headerShown: false, tabBarActiveTintColor: 'white',
+            tabBarStyle: styles.navbar
+        }}>
             <Tabs.Screen
                 name="home"
                 options={{
                     title: 'Home',
-                    tabBarIcon: ({color}) => <FontAwesome size={28} name="home" color={color}/>,
+                    tabBarIcon: ({color}) => <FontAwesome size={28} name="home" color={color}/>
                 }}
             />
             <Tabs.Screen
                 name="medications"
                 options={{
                     title: 'Medications',
-                    tabBarIcon: ({color}) => <FontAwesome size={28} name="circle" color={color}/>,
+                    tabBarIcon: ({color}) => <FontAwesome size={28} name="medkit" color={color}/>,
                 }}
             />
             <Tabs.Screen
@@ -44,3 +47,21 @@ export default function TabLayout() {
         </Tabs>
     );
 }
+
+
+const styles = StyleSheet.create({
+    navbar: {
+        backgroundColor: "#CDD8F5",
+        borderTopLeftRadius: 25,
+        borderTopRightRadius: 25
+    },
+    tabBarItem: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    icon: {
+        width: 30,
+        height: 30,
+        resizeMode: "contain",
+    },
+})
