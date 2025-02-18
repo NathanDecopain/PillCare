@@ -6,6 +6,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth } from 'config/firebase-config';
 import { router } from 'expo-router';
+import {useAuthContext} from "@/contexts/AuthContext";
 
 export default function Register() {
   // Declaring state with useState
@@ -15,34 +16,31 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState<string>('');
 
+  const {emailRegister} = useAuthContext();
+
   const handleRegister = async () => {
+    if (!(email && password)) {
+      setError("Veuillez remplir tous les champs.");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('Les mots de passe ne correspondent pas.');
       return;
     }
-    if (email === '' || password === '') {
-      setError('Tous les champs sont obligatoires.');
+
+    const { isRegistered, error } = await emailRegister(email, password);
+
+    if (!isRegistered) {
+      setError("Inscription échouée. Veuillez réessayer.");
+      console.error(`Registration error: ${error}`);
       return;
     }
 
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await sendEmailVerification(userCredential.user);
-
-      // Store user data in Firestore
-      await setDoc(doc(db, 'users', userCredential.user.uid), {
-        email: userCredential.user.email,
-        userType: 'Patient',
-        createdAt: new Date(),
-      });
-
-      setSuccess('Inscription réussie !');
-      setError('');
-    } catch (err: any) {
-      // Log and display detailed error
-      console.error("Registration error:", err);
-      setError(err.message || 'Erreur lors de l’inscription. Veuillez réessayer.');
-    }
+    // On success, show success message and redirect to login page
+    setError("");
+    setSuccess("Inscription réussie!");
+    setTimeout(() => {router.navigate("/login")}, 1000)
   };
 
   return (

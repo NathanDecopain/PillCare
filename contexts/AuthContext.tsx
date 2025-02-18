@@ -1,13 +1,20 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
-import {onAuthStateChanged, signInWithEmailAndPassword, signOut} from "firebase/auth";
+import {
+    createUserWithEmailAndPassword,
+    onAuthStateChanged,
+    sendEmailVerification,
+    signInWithEmailAndPassword,
+    signOut
+} from "firebase/auth";
 import {auth, db} from "config/firebase-config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {doc, getDoc} from "firebase/firestore";
+import {doc, getDoc, setDoc} from "firebase/firestore";
 
 type AuthContext = {
     session: AppUser | null,
     loading: boolean,
     emailLogin: (email: string, password: string) => Promise<{ isLoggedIn: boolean, error: string | null }>,
+    emailRegister: (email: string, password: string) => Promise<{ isRegistered: boolean, error: string | null }>
     logout: () => void
 }
 
@@ -94,6 +101,33 @@ export const AuthContextProvider = ({children}: {
 
         return {isLoggedIn: true, error: null};
     }
+
+    const emailRegister = async (email: string, password: string): Promise<{
+        isRegistered: boolean,
+        error: string | null
+    }> => {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+        // Check if user creation was successful
+        if (!userCredential) return { isRegistered: false, error: "Erreur lors de l'inscription."}
+
+        // Send email verification
+        await sendEmailVerification(userCredential.user);
+
+        // Store user data in Firestore
+        await setDoc(doc(db, 'users', userCredential.user.uid), {
+            email: userCredential.user.email,
+            userType: 'Patient',
+            createdAt: new Date(),
+        }).catch((e) => {
+            // On database insertion error, delete user
+            userCredential.user.delete();
+            return { isRegistered: false, error: "Échec lors de la création du compte. Essayez avec un autre courriel."}
+        });
+
+        return { isRegistered: true, error: null}
+    }
+
     const logout = async () => {
         try {
             await signOut(auth);
@@ -105,7 +139,7 @@ export const AuthContextProvider = ({children}: {
     }
 
     return (
-        <AuthContext.Provider value={{session, loading, emailLogin, logout}}>
+        <AuthContext.Provider value={{session, loading, emailLogin, emailRegister, logout}}>
             {children}
         </AuthContext.Provider>
     )
