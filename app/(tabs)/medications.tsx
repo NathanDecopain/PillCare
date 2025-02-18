@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import {router, useRouter} from "expo-router";
 import { db } from "config/firebase-config";
-import { collection, addDoc, onSnapshot, getDocs, setDoc, doc } from "firebase/firestore";
+import {collection, addDoc, onSnapshot, getDocs, setDoc, doc, where, query} from "firebase/firestore";
+import {useAuthContext} from "@/contexts/AuthContext";
+import {Medication} from "@/models/Medication";
 
 const { width } = Dimensions.get("window");
 
@@ -19,11 +21,36 @@ const doctors = [
 
 export default function MedicationsPage() {
   const [activeTab, setActiveTab] = useState<"Medications" | "Doctors">("Medications");
-  const [currentUser, setCurrentUser] = useState();
-  const [medicationList, setMedicationList] = useState([]);
+  const {session} = useAuthContext();
+  const [medicationList, setMedicationList] = useState<Array<Medication>>([]);
 
-  const router = useRouter();
-  
+  useEffect(() => {
+    if (session!.userID) {
+      fetchMedications();
+    }
+  }, [session!.userID]);
+
+  const fetchMedications = async () => {
+    try {
+      if (!session?.userID) {
+        console.error("Can't fetch user medications: User ID is undefined or null");
+        return; // Prevent the query if userId is invalid
+      }
+
+      const q = query(
+          collection(db, "usersMedication"),
+          where("userId", "==", session.userID)
+      );
+
+      const querySnapshot = await getDocs(q);
+      const userMedicationData = querySnapshot.docs.map(doc => doc.data() as Medication);
+      setMedicationList(userMedicationData);
+    } catch (error) {
+      console.error("Error fetching medications: ", error);
+    }
+  };
+
+
   const handleItemPress = (item: any) => {
     if (activeTab === "Medications") {
       router.push({
@@ -55,14 +82,14 @@ export default function MedicationsPage() {
 
 
   const renderContent = () => {
-    const data = activeTab === "Medications" ? medications : doctors;
+    const data = activeTab === "Medications" ? medicationList : doctors;
 
     return data.map((item, index) => (
       <TouchableOpacity key={index} style={styles.card} onPress={() => handleItemPress(item)}>
         <View style={styles.cardTextContainer}>
           <Text style={styles.cardTitle}>{item.name}</Text>
           <Text style={styles.cardSubtitle}>
-            {"frequency" in item ? item.frequency : item.specialty}
+            {"frequency" in item ? "ye" : item.specialty}
           </Text>
         </View>
         <Ionicons name="chevron-forward" size={24} color="#fff" style={styles.arrowIcon} />
