@@ -111,8 +111,8 @@ export default function AddToHistory() {
                 <View style={styles.pickerWrapper}>
                     <Picker selectedValue={historyEntry.type} onValueChange={(value) => handleChange("type", value)}
                             style={styles.picker}>
-                        <Picker.Item label="Medication I took" value="medication"/>
-                        <Picker.Item label="An observation on my health" value="observation"/>
+                        <Picker.Item key={1} label="Medication I took" value="medication"/>
+                        <Picker.Item key={2} label="An observation on my health" value="observation"/>
                     </Picker>
                 </View>
                 {/*Date and time picker*/}
