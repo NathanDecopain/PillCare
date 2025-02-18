@@ -50,7 +50,7 @@ export default function AddToHistory() {
 
 
         alert("Medication logged successfully!");
-        router.replace("/home");
+        router.navigate("/home");
     };
 
     const formatDate = (dateTime: Date) => {
@@ -187,7 +187,7 @@ export default function AddToHistory() {
                     <Text style={styles.addButtonText}>Submit</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.cancelButton} onPress={() => router.replace("/Home")}>
+                <TouchableOpacity style={styles.cancelButton} onPress={() => router.replace("/home")}>
                     <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
             </ScrollView>
