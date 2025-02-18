@@ -33,6 +33,7 @@ export default function Login() {
         return;
       }
 
+      setError("")
       setSuccess("Connexion réussie!");
       setTimeout(() => router.navigate("/"), 1000); // Wait 1 second and redirect
     } catch (err) {
