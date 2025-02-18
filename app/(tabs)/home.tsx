@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableOpacity } from "react-native";
+import {router} from "expo-router";
 
 const { width } = Dimensions.get("window");
 
-export default function HomePage() {
+export default function Home() {
   const [dates, setDates] = useState<{ day: string; date: number; fullDate: string; selected?: boolean; isToday?: boolean }[]>([]);
   const [today, setToday] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
@@ -113,7 +114,7 @@ export default function HomePage() {
       </ScrollView>
 
       {/* Bouton d'ajout */}
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity style={styles.addButton} onPress={() => router.navigate("/addToHistory")}>
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
     </View>
@@ -123,6 +124,8 @@ export default function HomePage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: "#fff",
   },
   header: {

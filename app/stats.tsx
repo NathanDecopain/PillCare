@@ -29,7 +29,7 @@ const StatisticsPage = () => {
     <View style={styles.container}>
         
     <View style={styles.header}>
-        <Image source={require("./icon/logo.png")} style={styles.logo} />
+        <Image source={require("assets/icon/logo.png")} style={styles.logo} />
     </View>
     <ScrollView style={styles.container}>
 

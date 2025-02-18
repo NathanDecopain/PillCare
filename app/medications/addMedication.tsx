@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User } from "firebase/auth";
 import { collection, addDoc, onSnapshot, getDocs, setDoc, doc } from "firebase/firestore";
-import { db } from "../config/firebase-config";
+import { db } from "config/firebase-config";
 
 
 
@@ -92,7 +92,7 @@ export default function AddMedication() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Image source={require("../icon/logo.png")} style={styles.logo} />
+        <Image source={require("assets/icon/logo.png")} style={styles.logo} />
       </View>
 
       {/* Form */}

@@ -1,7 +1,7 @@
 import {
   View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions, ScrollView
 } from "react-native";
-import { db, storage, auth } from "./config/firebase-config";
+import { db, storage, auth } from "config/firebase-config";
 import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -113,7 +113,7 @@ export default function EditProfilePage() {
     <View style={styles.pageContainer}>
       {/* Header */}
       <View style={styles.header}>
-        <Image source={require("./icon/logo.png")} style={styles.logo} />
+        <Image source={require("assets/icon/logo.png")} style={styles.logo} />
       </View>
 
       {/* Contenu principal dans un ScrollView */}
@@ -122,7 +122,7 @@ export default function EditProfilePage() {
         {/* Photo de profil */}
         <View style={styles.profilePictureContainer}>
           <Image
-            source={require("./icon/userPfp.jpg")}
+            source={require("assets/icon/userPfp.jpg")}
             style={styles.profilePicture}
           />
           <TouchableOpacity style={styles.editIcon}>

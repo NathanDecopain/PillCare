@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { useRouter } from "expo-router"; 
-import { auth } from './config/firebase-config';
-import { db } from './config/firebase-config';
+import { auth } from 'config/firebase-config';
+import { db } from 'config/firebase-config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useAuthContext} from "@/contexts/AuthContext";
 
 export default function Login() {
+  const { emailLogin } = useAuthContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -18,38 +20,15 @@ export default function Login() {
 
   const handleEmailLogin = async () => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-  
-      if (!user.emailVerified) {
-        setError("Votre adresse courriel n'a pas été vérifiée. Veuillez vérifier vos emails.");
-        return;
+      // Check if email and password are present
+      if (!(email && password)) {
+        setError("Veuillez remplir tous les champs.");
+        return
       }
-  
-      // Fetch additional user details from Firestore
-      const userRef = doc(db, 'users', user.uid);
-      const userSnapshot = await getDoc(userRef);
-  
-      if (userSnapshot.exists()) {
-        const userData = userSnapshot.data();
-  
-        // Save user details to AsyncStorage
-        const userDetails = {
-          email: user.email,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          dateOfBirth: userData.dateOfBirth,
-          phoneNumber: userData.phoneNumber,
-          userID: user.uid
-        };
-  
-        await AsyncStorage.setItem("user", JSON.stringify(userDetails));
-        console.log(userDetails);  // You can check the details in the console for debugging
-  
-        router.replace("/Home"); 
-      } else {
-        setError("Les informations supplémentaires de l'utilisateur sont introuvables.");
-      }
+
+      const {isLoggedIn, error} = await emailLogin(email, password);
+
+      isLoggedIn? router.navigate("/(tabs)/home") : setError(error || "Échec de la connexion. Vérifiez vos identifiants.")
     } catch (err) {
       setError('Échec de la connexion. Vérifiez vos identifiants.');
     }
@@ -77,7 +56,7 @@ export default function Login() {
         });
       }
 
-      router.replace("/Home"); 
+      router.replace("/");
     } catch (error) {
       console.error('Error during Google sign-in:', error);
       setError('Une erreur est survenue lors de la connexion avec Google.');
@@ -88,7 +67,7 @@ export default function Login() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Image source={require("./icon/logo.png")} style={styles.logo} />
+        <Image source={require("assets/icon/logo.png")} style={styles.logo} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>

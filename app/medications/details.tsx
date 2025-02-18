@@ -35,14 +35,14 @@ export default function MedicationDetails() {
         <View style={{ flex: 1, backgroundColor: "#fff" }}>
             {/* Header */}
             <View style={styles.header}>
-                <Image source={require("../icon/logo.png")} style={styles.logo} />
+                <Image source={require("assets/icon/logo.png")} style={styles.logo} />
             </View>
 
             {/* Contenu principal */}
             <View style={styles.container}>
                 {/* Bouton de retour */}
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                    <Image source={require("../icon/retour.png")} style={styles.backIcon} />
+                    <Image source={require("assets/icon/retour.png")} style={styles.backIcon} />
                 </TouchableOpacity>
                 <View style={styles.form}>
                     <Text style={styles.label}>Medication Name</Text>

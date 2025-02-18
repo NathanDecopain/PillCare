@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
-import { db } from './config/firebase-config';
+import { db } from 'config/firebase-config';
 import { doc, setDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
-import { auth } from './config/firebase-config';
+import { auth } from 'config/firebase-config';
 import { router } from 'expo-router';
 
 export default function Register() {
@@ -49,7 +49,7 @@ export default function Register() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Image source={require("./icon/logo.png")} style={styles.logo} />
+        <Image source={require("assets/icon/logo.png")} style={styles.logo} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>

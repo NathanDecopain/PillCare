@@ -4,11 +4,11 @@ import {Picker} from "@react-native-picker/picker";
 import {useRouter} from "expo-router";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {collection, getDocs} from "firebase/firestore";
-import {db} from "@/app/config/firebase-config";
+import {db} from "config/firebase-config";
 
 const {width} = Dimensions.get("window");
 
-export default function AddHistoryEntryForm() {
+export default function AddToHistory() {
     const router = useRouter();
     const [userMedications, setUserMedications] = useState([
         { id: 1, name: "Ritalin", dosage: "10mg" },
@@ -50,7 +50,7 @@ export default function AddHistoryEntryForm() {
 
 
         alert("Medication logged successfully!");
-        router.replace("/Home");
+        router.replace("/home");
     };
 
     const formatDate = (dateTime: Date) => {

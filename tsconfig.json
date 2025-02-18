@@ -5,7 +5,16 @@
     "paths": {
       "@/*": [
         "./*"
-      ]
+      ],
+      "app/*": [
+          "app/*"
+      ],
+      "assets/*": [
+          "assets/*"
+      ],
+      "config/*": [
+        "config/*"
+      ],
     }
   },
   "include": [

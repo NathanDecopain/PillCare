@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { db } from "./config/firebase-config";
+import { db } from "config/firebase-config";
 import { collection, addDoc, onSnapshot, getDocs, setDoc, doc } from "firebase/firestore";
 
 const { width } = Dimensions.get("window");
@@ -74,7 +74,7 @@ export default function MedicationsPage() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Image source={require("./icon/logo.png")} style={styles.logo} />
+        <Image source={require("assets/icon/logo.png")} style={styles.logo} />
       </View>
 
       {/* Tabs */}

@@ -14,12 +14,12 @@ export default function DoctorProfile() {
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <Image source={require("../icon/logo.png")} style={styles.logo} />
+                <Image source={require("assets/icon/logo.png")} style={styles.logo} />
 
             </View>
             <View>
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                <Image source={require("../icon/retour.png")} style={styles.backIcon} />
+                <Image source={require("assets/icon/retour.png")} style={styles.backIcon} />
             </TouchableOpacity>
 
             </View>
@@ -27,7 +27,7 @@ export default function DoctorProfile() {
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 {/* Pfp & name */}
                 <View style={styles.profileContainer}>
-                    <Image source={require("../icon/userPfp.jpg")} style={styles.profileImage} />
+                    <Image source={require("assets/icon/userPfp.jpg")} style={styles.profileImage} />
                     <Text style={styles.name}>{params.name || "Nom non spécifié"}</Text>
                     <Text style={styles.subtitle}>{params.specialty || "Spécialité non spécifiée"}</Text>
                 </View>

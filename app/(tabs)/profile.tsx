@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
-import { db, storage, auth } from "./config/firebase-config";
+import { db, storage, auth } from "config/firebase-config";
 
 const { width } = Dimensions.get("window");
 
@@ -47,7 +47,7 @@ const handleLogout = async () => {
       {/* Header */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.profileContainer}>
-          <Image source={require("./icon/userPfp.jpg")} style={styles.profileImage} />
+          <Image source={require("assets/icon/userPfp.jpg")} style={styles.profileImage} />
           <Text style={styles.name}>{firstName} {lastName}</Text>
           <Text style={styles.subtitle}>{userEmail}</Text>
         </View>
