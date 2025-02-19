@@ -1,96 +1,100 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions } from "react-native";
-import { useLocalSearchParams } from "expo-router";
-import { useNavigation } from "@react-navigation/native";
+import React, {useEffect, useState} from "react";
+import {View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions} from "react-native";
+import {Redirect, router, useLocalSearchParams} from "expo-router";
+import {useNavigation} from "@react-navigation/native";
+import {MedicationWithId} from "@/models/Medication";
+import {Picker} from "@react-native-picker/picker";
+import {doc, getDoc, setDoc} from "firebase/firestore";
+import {db} from "config/firebase-config";
 
-const { width } = Dimensions.get("window");
-
-interface Medication {
-    name: string;
-    dosage: string;
-    frequency: string;
-    time: string;
-    duration: string;
-    notes: string;
-}
+const {width} = Dimensions.get("window");
 
 export default function MedicationDetails() {
-    const params = useLocalSearchParams();
-    const [medication, setMedication] = useState<Medication>({
-        name: params.name?.toString() || "",
-        dosage: params.dosage?.toString() || "",
-        frequency: params.frequency?.toString() || "",
-        time: params.time?.toString() || "",
-        duration: params.duration?.toString() || "",
-        notes: params.notes?.toString() || "",
-    });
+    const medicationId = useLocalSearchParams().medicationId as string;
+    console.log("medicationId", medicationId);
+    if (!medicationId) {
+        return <Redirect href={"/medications"}/>;
+    }
 
-    const handleChange = (key: keyof Medication, value: string) => {
-        setMedication((prev) => ({ ...prev, [key]: value }));
+    const [medication, setMedication] = useState<MedicationWithId>();
+
+
+    // Fetch the medication from the database
+    useEffect(() => {
+        try {
+            if (medicationId) {
+                getDoc(doc(db, "usersMedication", medicationId)).then((doc) => {
+                    if (doc.exists()) {
+                        setMedication({...doc.data(), medicationId: doc.id} as MedicationWithId);
+                    } else {
+                        console.error("No such document!");
+                    }
+                });
+            }
+        } catch (e) {
+            console.error("Error fetching medications: ", e);
+        }
+    }, [medicationId]);
+
+    // Handle changes to the medication object
+    const handleChange = (key: keyof MedicationWithId, value: string) => {
+        setMedication((prev) => ({...prev, [key]: value}) as MedicationWithId);
     };
-    const navigation = useNavigation();
 
-
+    const updateMedication = async () => {
+        try {
+            if (medication) {
+                await setDoc(doc(db, "usersMedication", medication.medicationId), medication);
+                router.push("/medications");
+            }
+        } catch (e) {
+            console.error("Error updating medication: ", e);
+        }
+    };
     return (
-        <View style={{ flex: 1, backgroundColor: "#fff" }}>
-            {/* Header */}
-            <View style={styles.header}>
-                <Image source={require("assets/icon/logo.png")} style={styles.logo} />
-            </View>
-
+        <View style={{flex: 1, backgroundColor: "#fff"}}>
             {/* Contenu principal */}
             <View style={styles.container}>
                 {/* Bouton de retour */}
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                    <Image source={require("assets/icon/retour.png")} style={styles.backIcon} />
+                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                    <Image source={require("assets/icon/retour.png")} style={styles.backIcon}/>
                 </TouchableOpacity>
-                <View style={styles.form}>
-                    <Text style={styles.label}>Medication Name</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={medication.name}
-                        onChangeText={(text) => handleChange("name", text)}
-                    />
+                {!medication ? (<Text>Loading...</Text>) : (
+                    <View style={styles.form}>
+                        <Text style={styles.label}>Medication Name</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={medication!.name}
+                            onChangeText={(text) => handleChange("name", text)}
+                        />
 
-                    <Text style={styles.label}>Dosage</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={medication.dosage}
-                        onChangeText={(text) => handleChange("dosage", text)}
-                    />
+                        <Text style={styles.label}>Dosage</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={medication.dosage}
+                            onChangeText={(text) => handleChange("dosage", text)}
+                        />
 
-                    <Text style={styles.label}>Frequency</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={medication.frequency}
-                        onChangeText={(text) => handleChange("frequency", text)}
-                    />
+                        <Text style={styles.label}>Type</Text>
+                        <Picker selectedValue={medication.type}
+                                onValueChange={(itemValue) => handleChange("type", itemValue.toString())}>
+                            <Picker.Item label="Prescription" value="prescription"/>
+                            <Picker.Item label="Supplement" value="supplement"/>
+                            <Picker.Item label="Over-the-counter" value="over-the-counter"/>
+                            <Picker.Item label="Other" value="other"/>
+                        </Picker>
 
-                    <Text style={styles.label}>Time</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={medication.time}
-                        onChangeText={(text) => handleChange("time", text)}
-                    />
-
-                    <Text style={styles.label}>Duration</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={medication.duration}
-                        onChangeText={(text) => handleChange("duration", text)}
-                    />
-
-                    <Text style={styles.label}>Additional Notes</Text>
-                    <TextInput
-                        style={[styles.input, styles.notesInput]}
-                        multiline
-                        value={medication.notes}
-                        onChangeText={(text) => handleChange("notes", text)}
-                    />
-                </View>
-
+                        <Text style={styles.label}>Additional Notes</Text>
+                        <TextInput
+                            style={[styles.input, styles.notesInput]}
+                            multiline
+                            value={medication.notes}
+                            onChangeText={(text) => handleChange("notes", text)}
+                        />
+                    </View>
+                )}
                 {/* Bouton save */}
-                <TouchableOpacity style={styles.saveButton}>
+                <TouchableOpacity style={styles.saveButton} onPress={updateMedication}>
                     <Text style={styles.saveButtonText}>Save</Text>
                 </TouchableOpacity>
             </View>

@@ -5,7 +5,7 @@ import {Redirect, router, useRouter} from "expo-router";
 import {db} from "config/firebase-config";
 import {collection, addDoc, onSnapshot, getDocs, setDoc, doc, where, query} from "firebase/firestore";
 import {useAuthContext} from "@/contexts/AuthContext";
-import {Medication} from "@/models/Medication";
+import {Medication, MedicationWithId} from "@/models/Medication";
 
 const {width} = Dimensions.get("window");
 
@@ -20,7 +20,7 @@ export default function MedicationsPage() {
         return <Redirect href={"/login"}/>;
     }
     const [activeTab, setActiveTab] = useState<"Medications" | "Doctors">("Medications");
-    const [medicationList, setMedicationList] = useState<Array<Medication>>([]);
+    const [medicationList, setMedicationList] = useState<Array<MedicationWithId>>([]);
 
     useEffect(() => {
         if (session!.userID) {
@@ -41,7 +41,7 @@ export default function MedicationsPage() {
             );
 
             const querySnapshot = await getDocs(q);
-            const userMedicationData = querySnapshot.docs.map(doc => doc.data() as Medication);
+            const userMedicationData = querySnapshot.docs.map(doc => ({...doc.data(), medicationId: doc.id} as MedicationWithId));
             setMedicationList(userMedicationData);
         } catch (error) {
             console.error("Error fetching medications: ", error);
@@ -54,12 +54,7 @@ export default function MedicationsPage() {
             router.push({
                 pathname: "/medications/details",
                 params: {
-                    name: item.name,
-                    frequency: item.frequency,
-                    dosage: item.dosage,
-                    time: item.time,
-                    duration: item.duration,
-                    notes: item.notes,
+                    id: item.id,
                 },
             });
         } else {
@@ -77,6 +72,15 @@ export default function MedicationsPage() {
             });
         }
     };
+
+    const handleMedicationItemPress = (medicationId: string) => {
+        router.push({
+            pathname: "/medications/details",
+            params: {
+                medicationId: medicationId,
+            },
+        });
+    }
 
     return (
         <View style={styles.container}>
@@ -105,7 +109,7 @@ export default function MedicationsPage() {
                 contentContainerStyle={styles.scrollViewContent}>
                 {(activeTab === "Medications")
                     && medicationList.map((item, index) => (
-                        <TouchableOpacity key={index} style={styles.card} onPress={() => handleItemPress(item)}>
+                        <TouchableOpacity key={index} style={styles.card} onPress={() => handleMedicationItemPress(item.medicationId)}>
                             <View style={styles.cardTextContainer}>
                                 <Text style={styles.cardTitle}>{item.name}</Text>
                                 <Text style={styles.cardSubtitle}>

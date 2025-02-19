@@ -14,3 +14,5 @@ export type Medication = {
     userId: string,
     isInactive: boolean,
 };
+
+export type MedicationWithId = Medication & { medicationId: string };
