@@ -9,8 +9,8 @@ export type MedicationTypes =
 export type Medication = {
     name: string,
     dosage: string,
-    type?: MedicationTypes,
-    notes: string,
+    type: MedicationTypes,
+    notes?: string,
     userId: string,
     isInactive: boolean,
 };

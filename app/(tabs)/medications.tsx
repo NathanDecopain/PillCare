@@ -3,7 +3,7 @@ import {View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image}
 import {Ionicons} from "@expo/vector-icons";
 import {Redirect, router, useRouter} from "expo-router";
 import {db} from "config/firebase-config";
-import {collection, addDoc, onSnapshot, getDocs, setDoc, doc, where, query} from "firebase/firestore";
+import {collection, addDoc, onSnapshot, getDocs, setDoc, doc, where, query, and} from "firebase/firestore";
 import {useAuthContext} from "@/contexts/AuthContext";
 import {Medication, MedicationWithId} from "@/models/Medication";
 
@@ -37,7 +37,7 @@ export default function MedicationsPage() {
 
             const q = query(
                 collection(db, "usersMedication"),
-                where("userId", "==", session.userID)
+                and(where("userId", "==", session.userID) , where("isInactive", "==", false))
             );
 
             const querySnapshot = await getDocs(q);

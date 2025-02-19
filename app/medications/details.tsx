@@ -51,6 +51,20 @@ export default function MedicationDetails() {
             console.error("Error updating medication: ", e);
         }
     };
+
+    const deleteMedication = async () => {
+        try {
+            if (medication) {
+                await setDoc(doc(db, "usersMedication", medication.medicationId), {
+                    ...medication,
+                    isInactive: true
+                });
+                router.navigate("/medications");
+            }
+        } catch (e) {
+            console.error("Error deleting medication: ", e);
+        }
+    }
     return (
         <View style={{flex: 1, backgroundColor: "#fff"}}>
             {/* Contenu principal */}
@@ -96,6 +110,11 @@ export default function MedicationDetails() {
                 {/* Bouton save */}
                 <TouchableOpacity style={styles.saveButton} onPress={updateMedication}>
                     <Text style={styles.saveButtonText}>Save</Text>
+                </TouchableOpacity>
+
+                {/* Bouton de suppression */}
+                <TouchableOpacity style={styles.cancelButton} onPress={deleteMedication}>
+                    <Text style={styles.cancelButtonText}>Delete</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -166,5 +185,17 @@ const styles = StyleSheet.create({
         resizeMode: "contain",
         marginTop: -20,
         marginLeft: -10
+    },
+    cancelButton: {
+        backgroundColor: "#E57373",
+        borderRadius: 10,
+        paddingVertical: 15,
+        alignItems: "center",
+        marginTop: 10,
+    },
+    cancelButtonText: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#fff",
     },
 });

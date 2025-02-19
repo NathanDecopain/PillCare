@@ -21,7 +21,7 @@ export default function AddMedication() {
     const [medication, setMedication] = useState<Medication>({
         name: "",
         dosage: "",
-        type: undefined,
+        type: "other",
         notes: "",
         userId: session.userID,
         isInactive: false,
