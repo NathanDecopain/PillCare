@@ -1,26 +1,41 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions, ScrollView} from "react-native";
 import {Picker} from "@react-native-picker/picker";
-import {useRouter} from "expo-router";
+import {Redirect, useRouter} from "expo-router";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {collection, getDocs} from "firebase/firestore";
+import {addDoc, and, collection, getDocs, query, setDoc, where} from "firebase/firestore";
 import {db} from "config/firebase-config";
+import {MedicationWithId} from "@/models/Medication";
+import {useAuthContext} from "@/contexts/AuthContext";
+import {HistoryEntry} from "@/models/HistoryEntry";
 
 const {width} = Dimensions.get("window");
 
 export default function AddToHistory() {
+    const {session} = useAuthContext();
     const router = useRouter();
-    const [userMedications, setUserMedications] = useState([
-        { id: 1, name: "Ritalin", dosage: "10mg" },
-        { id: 2, name: "Tylenol", dosage: "160mg" },
-    ]);
-    const [historyEntry, setHistoryEntry] = useState({
+
+    if (!session) return <Redirect href={"/login"}/>
+
+    const [userMedications, setUserMedications] = useState<MedicationWithId[]>()
+    const [selectedMedication, setSelectedMedication] = useState<MedicationWithId>()
+    const [historyEntry, setHistoryEntry] = useState<HistoryEntry>({
+        userId: session.userID,
         type: "medication", // Medication or observation
         medicationId: "",
         dateTime: new Date(),
         dosage: "",
         observation: "",
+        createdAt: new Date(),
     });
+
+    // Use effect to fetch user medications
+    useEffect(() => {
+        fetchUserMedications().catch(
+            (error) => console.error("Error fetching user medications: ", error)
+        );
+    }, []);
+
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
 
@@ -29,12 +44,14 @@ export default function AddToHistory() {
     };
 
     const handleSubmit = () => {
-        {/* Check if type is medication or observation */}
+        {/* Check if type is medication or observation */
+        }
         if (!(historyEntry.type === "medication" || historyEntry.type === "observation")) {
             alert("Please choose a type of entry.");
         }
 
-        {/* Checks for medication entry */}
+        {/* Checks for medication entry */
+        }
         if (historyEntry.type === "medication" && !(historyEntry.dateTime && historyEntry.medicationId)) {
             alert("Please fill in all required fields.");
             return;
@@ -46,7 +63,20 @@ export default function AddToHistory() {
         }
 
         {/* TODO: Insert history entry into the database */}
-
+        try {
+            const data: HistoryEntry = {
+                userId: session?.userID,
+                type: historyEntry.type,
+                medicationId: historyEntry.medicationId,
+                dateTime: historyEntry.dateTime,
+                dosage: historyEntry.dosage,
+                observation: historyEntry.observation,
+                createdAt: new Date(),
+            }
+            const docRef = addDoc(collection(db, "usersHistory"), data)
+        } catch (error) {
+            console.error("Error adding history entry:", error);
+        }
 
         alert("Medication logged successfully!");
         router.navigate("/home");
@@ -99,8 +129,26 @@ export default function AddToHistory() {
         setShowTimePicker(false);
     }
 
-    const fetchUserMedications = () => {
-        // TODO: Fetch user medications from database
+    // Fetch user medications from the database
+    const fetchUserMedications = async () => {
+        const q = query(
+            collection(db, "usersMedication"),
+            and(where("userId", "==", session.userID) , where("isInactive", "==", false))
+        );
+        const querySnapshot = await getDocs(q);
+        const data = querySnapshot.docs.map(doc => ({...doc.data(), medicationId: doc.id} as MedicationWithId));
+        setUserMedications(data);
+    }
+
+    const handleSelectMedication = (medicationId: string) => {
+        // Change the selected medication ID in the history entry
+        handleChange("medicationId", medicationId);
+
+        // Change the dosage to the default dosage of the medication
+        const selectedMedication = userMedications?.find((medication) => medication.medicationId === medicationId);
+        if (selectedMedication) {
+            handleChange("dosage", selectedMedication.dosage);
+        }
     }
 
     return (
@@ -151,14 +199,15 @@ export default function AddToHistory() {
                 )}
 
                 {/* Medication log */}
-                {historyEntry.type === "medication" && <>
+                {historyEntry.type === "medication" && userMedications && <>
                     <Text style={styles.label}>Medication</Text>
 
                     {/*User medications dropdown*/}
                     <View style={styles.pickerWrapper}>
-                        <Picker selectedValue={null} onValueChange={(value) => handleChange("medicationId", value)}
+                        <Picker selectedValue={null} onValueChange={(value) => handleSelectMedication(value)}
                                 style={styles.picker}>
-                            { userMedications.map((item) => <Picker.Item label={item.name} value={item.id}/>)}
+                            <Picker.Item label="Select a medication" value={null}/>
+                            {userMedications.map((item) => <Picker.Item key={item.medicationId} label={item.name} value={item.medicationId}/>)}
                         </Picker>
                     </View>
 
