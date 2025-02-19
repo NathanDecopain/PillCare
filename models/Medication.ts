@@ -1,13 +1,16 @@
 import {Timestamp} from "@firebase/firestore";
 
+export type MedicationTypes =
+    "prescription"
+    | "supplement"
+    | "over-the-counter"
+    | "other";
+
 export type Medication = {
     name: string,
     dosage: string,
-    time: Timestamp,
-    startDate: Timestamp,
-    endDate: Timestamp,
-    frequency: string,
-    duration: string,
+    type?: MedicationTypes,
     notes: string,
     userId: string,
+    isInactive: boolean,
 };
