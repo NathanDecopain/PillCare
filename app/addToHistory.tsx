@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions, ScrollView} from "react-native";
 import {Picker} from "@react-native-picker/picker";
-import {Redirect, useRouter} from "expo-router";
+import {Redirect, useLocalSearchParams, useRouter} from "expo-router";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {addDoc, and, collection, getDocs, query, setDoc, where} from "firebase/firestore";
 import {db} from "config/firebase-config";
@@ -14,7 +14,7 @@ const {width} = Dimensions.get("window");
 export default function AddToHistory() {
     const {session} = useAuthContext();
     const router = useRouter();
-
+    const dateParam = useLocalSearchParams().date.toString();
     if (!session) return <Redirect href={"/login"}/>
 
     const [userMedications, setUserMedications] = useState<MedicationWithId[]>()
@@ -23,7 +23,7 @@ export default function AddToHistory() {
         userId: session.userID,
         type: "medication", // Medication or observation
         medicationId: "",
-        dateTime: new Date(),
+        dateTime: dateParam ? new Date(dateParam) : new Date(),
         dosage: "",
         observation: "",
         createdAt: new Date(),
