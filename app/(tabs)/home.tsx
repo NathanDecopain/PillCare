@@ -1,122 +1,114 @@
-import {Text, StyleSheet, TouchableOpacity, View, ScrollView, Dimensions} from "react-native";
-import {Agenda, AgendaList, CalendarProvider, ExpandableCalendar} from "react-native-calendars";
-import {SafeAreaView} from "react-native-safe-area-context";
-import {useCallback, useEffect, useState} from "react";
-import {Redirect, router} from "expo-router";
-import {useAuthContext} from "@/contexts/AuthContext";
-import {collection, getDocs, query, where} from "firebase/firestore";
-import {db} from "config/firebase-config";
-import {HistoryEntry, HistoryEntryFromFirestore} from "@/models/HistoryEntry";
-import {MarkedDates} from "react-native-calendars/src/types";
-import {MedicationWithId} from "@/models/Medication";
+import { Text, StyleSheet, TouchableOpacity, View, ScrollView, Dimensions } from "react-native";
+import { CalendarProvider, ExpandableCalendar } from "react-native-calendars";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Redirect, router, useLocalSearchParams } from "expo-router";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "config/firebase-config";
+import { HistoryEntryFromFirestore } from "@/models/HistoryEntry";
+import { MarkedDates } from "react-native-calendars/src/types";
+import { MedicationWithId } from "@/models/Medication";
 
-const {width} = Dimensions.get("window");
+const { width } = Dimensions.get("window");
+
+// Utility function to format dates
+const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
 export default function Home() {
-    const {session} = useAuthContext();
-    if (!session) return <Redirect href="/login"/>;
+    const { session } = useAuthContext();
+    const initialDay = useLocalSearchParams().initialDay as string;
+    const today = useMemo(() => formatDate(new Date()), []);
+    const [history, setHistory] = useState<HistoryEntryFromFirestore[]>([]);
+    const [selectedDate, setSelectedDate] = useState<string>(initialDay || today);
+    const [markedDates, setMarkedDates] = useState<MarkedDates>({});
+    const [medications, setMedications] = useState<Record<string, MedicationWithId>>({});
 
-    const [history, setHistory] = useState<HistoryEntryFromFirestore[]>();
-    const [selectedDate, setSelectedDate] = useState<string>();
-    const [markedDates, setMarkedDates] = useState<MarkedDates>();
-    const [itemsForDate, setItemsForDate] = useState<HistoryEntryFromFirestore[]>();
-    const [medications, setMedications] = useState<Map<MedicationWithId>>();
+    // Redirect if not logged in
+    if (!session) return <Redirect href="/login" />;
 
+    // Fetch history and medications concurrently
     useEffect(() => {
-        fetchHistory();
-        fetchMedications();
-    }, []);
+        const fetchData = async () => {
+            try {
+                const [historySnapshot, medicationSnapshot] = await Promise.all([
+                    getDocs(query(collection(db, "usersHistory"), where("userId", "==", session.userID))),
+                    getDocs(query(collection(db, "usersMedication"), where("userId", "==", session.userID))),
+                ]);
 
-    // Fetch medication from the firestore database
-    const fetchMedications = async () => {
-        const q = query(collection(db, "usersMedication"), where("userId", "==", session.userID));
-        const querySnapshot = await getDocs(q);
+                const historyData = historySnapshot.docs.map(doc => ({ ...doc.data(), historyId: doc.id } as HistoryEntryFromFirestore));
+                const medicationData = Object.fromEntries(medicationSnapshot.docs.map(doc => [doc.id, doc.data() as MedicationWithId]));
 
-        // Get the data from the query snapshot
-        const medicationData = Object.fromEntries(querySnapshot.docs.map(doc => [doc.id, doc.data() as MedicationWithId]));
-        setMedications(medicationData);
-    }
+                setHistory(historyData);
+                setMedications(medicationData);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        };
 
-    // Fetch history entries from the firestore database
-    const fetchHistory = async () => {
-        const q = query(collection(db, "usersHistory"), where("userId", "==", session.userID));
-        const querySnapshot = await getDocs(q);
+        fetchData();
+    }, [session.userID]);
 
-        // Get the data from the query snapshot
-        const historyData = querySnapshot.docs.map(doc => doc.data() as HistoryEntryFromFirestore);
+    // Filter history entries for the selected date
+    const itemsForDate = useMemo(() => {
+        return history
+            .filter(entry => formatDate(entry.dateTime.toDate()) === selectedDate)
+            .sort((a, b) => a.dateTime.toDate().getTime() - b.dateTime.toDate().getTime());
+    }, [history, selectedDate]);
 
-        setHistory(historyData);
-    }
-
-    const handleDateChange = (date: string) => {
-        setSelectedDate(date);
-    }
-
-    // Filter the history entries by the selected date
+    // Mark dates with entries
     useEffect(() => {
-        const entries = history?.filter(entry => entry.dateTime.toDate().toISOString().split("T")[0] === selectedDate)
-            .sort((a, b) => a.dateTime.toDate().getTime() - b.dateTime.toDate().getTime())
-
-        setItemsForDate(entries);
-    }, [selectedDate]);
-
-    // Mark every date with an entry as having an item
-    useEffect(() => {
-        if (!history) return;
-        const markedDates: MarkedDates = {};
+        const newMarkedDates: MarkedDates = {};
         history.forEach(entry => {
-            const date = entry.dateTime.toDate().toISOString().split("T")[0];
-            markedDates[date] = {marked: true};
+            const date = formatDate(entry.dateTime.toDate());
+            newMarkedDates[date] = { marked: true };
         });
-        setMarkedDates(markedDates);
+        setMarkedDates(newMarkedDates);
     }, [history]);
+
+    const handleDateChange = useCallback((date: string) => {
+        setSelectedDate(date);
+    }, []);
 
     return (
         <SafeAreaView style={styles.container}>
-            <CalendarProvider date={new Date().toISOString().split("T")[0]} onDateChanged={handleDateChange}
-                              showTodayButton>
-                <ExpandableCalendar
-                    firstDay={1}
-                    markedDates={markedDates}
-                />
-                {/* Sélectionner les items associés à la journée sélectionnée*/}
+            <CalendarProvider date={selectedDate} onDateChanged={handleDateChange} showTodayButton>
+                <ExpandableCalendar enableSwipeMonths={false} markedDates={markedDates} />
                 <ScrollView>
-                    {selectedDate && itemsForDate ? itemsForDate.map((entry: HistoryEntryFromFirestore) => {
-                                if (entry.type === "medication") {
-                                    return (
-                                        <View key={entry.id} style={styles.medicationContainer}>
-                                            <Text style={styles.medicationName}>{medications?.[entry.medicationId]?.name}</Text>
-                                            <View style={styles.divider}/>
-                                            <Text
-                                                style={styles.medicationTime}>{entry.dateTime.toDate().toLocaleTimeString("en-us", {
-                                                hour: "2-digit",
-                                                minute: "2-digit"
-                                            })}</Text>
-                                        </View>)
-                                } else {
-                                    return (
-                                        <View key={entry.id} style={styles.medicationContainer}>
-                                            <Text style={styles.medicationName}>Observation</Text>
-                                            <View style={styles.divider}/>
-                                            <Text style={styles.medicationTime}>{entry.observation}</Text>
-                                        </View>
-                                    )
-                                }
-                            }
-                        ) :
+                    {itemsForDate.length > 0 ? (
+                        itemsForDate.map(entry => (
+                            <TouchableOpacity
+                                key={entry.historyId}
+                                onPress={() => router.push({ pathname: "/history/details", params: { historyId: entry.historyId } })}
+                            >
+                                <View style={styles.medicationContainer}>
+                                    <Text style={styles.medicationName}>
+                                        {entry.type === "medication" && entry.medicationId
+                                            ? medications[entry.medicationId]?.name
+                                            : "Observation"}
+                                    </Text>
+                                    <View style={styles.divider} />
+                                    <Text style={styles.medicationTime}>
+                                        {entry.type === "medication"
+                                            ? entry.dateTime.toDate().toLocaleTimeString("en-us", { hour: "2-digit", minute: "2-digit" })
+                                            : entry.observation}
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+                        ))
+                    ) : (
                         <Text>Aucun item pour cette journée</Text>
-                    }
+                    )}
                 </ScrollView>
-                {/* Bouton d'ajout */}
-                <TouchableOpacity style={styles.addButton} onPress={() => router.push({
-                    pathname: "/addToHistory",
-                    params: {date: selectedDate}
-                })}>
+                <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={() => router.push({ pathname: "/addToHistory", params: { date: selectedDate + "T" + new Date().toISOString().split("T")[1] } })}
+                >
                     <Text style={styles.addButtonText}>+</Text>
                 </TouchableOpacity>
             </CalendarProvider>
         </SafeAreaView>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -125,80 +117,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: "#fff",
-    },
-    header: {
-        width: width * 1.2,
-        height: width / 1.7,
-        backgroundColor: "#CDD8F5",
-        borderBottomLeftRadius: width / 2,
-        borderBottomRightRadius: width / 2,
-        justifyContent: "flex-start",
-        paddingTop: 50,
-        transform: [{translateX: -(width * 0.1)}],
-        overflow: "hidden",
-
-    },
-    textContainer: {
-        paddingLeft: 55,
-    },
-    headerText: {
-        fontSize: 24,
-        fontWeight: "bold",
-        color: "#666",
-    },
-    subText: {
-        fontSize: 16,
-        color: "#666",
-        marginTop: 5,
-        marginBottom: 10,
-    },
-    dateScrollView: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 20,
-        marginBottom: 65,
-    },
-    dateWrapper: {
-        alignItems: "center",
-        marginHorizontal: 8,
-    },
-    dateCircle: {
-        width: 45,
-        height: 45,
-        borderRadius: 25,
-        backgroundColor: "#fff",
-        justifyContent: "center",
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: {width: 0, height: 2},
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        elevation: 3,
-    },
-    todayCircle: {
-        backgroundColor: "#7B83EB",
-    },
-    selectedDateCircle: {
-        backgroundColor: "#D3D3D3",
-    },
-    dayText: {
-        fontSize: 12,
-        fontWeight: "bold",
-        color: "#666",
-    },
-    todayText: {
-        color: "#fff",
-    },
-    selectedDateText: {
-        color: "#666",
-    },
-    dateText: {
-        fontSize: 16,
-        fontWeight: "bold",
-        color: "#666",
-    },
-    scrollViewContent: {
-        paddingBottom: 80,
     },
     medicationContainer: {
         height: 100,
@@ -213,7 +131,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         shadowColor: "#000",
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 5,
@@ -244,7 +162,7 @@ const styles = StyleSheet.create({
         bottom: 80,
         alignSelf: "center",
         shadowColor: "#000",
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 5,

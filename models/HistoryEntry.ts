@@ -14,7 +14,7 @@ export type HistoryEntry = {
 };
 
 export type HistoryEntryFromFirestore = Omit<HistoryEntry, "dateTime"> & {
-    id: string,
+    historyId: string,
     dateTime: Timestamp,
 };
 
