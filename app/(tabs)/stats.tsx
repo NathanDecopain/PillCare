@@ -2,8 +2,52 @@ import { View, Text, StyleSheet, Dimensions, ScrollView, Image } from "react-nat
 import { PieChart } from "react-native-chart-kit";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {db} from "config/firebase-config";
+import {collection, addDoc, onSnapshot, getDocs, setDoc, doc, where, query, and} from "firebase/firestore";
+import {useAuthContext} from "@/contexts/AuthContext";
+import {Redirect, router, useRouter} from "expo-router";
+import {Medication, MedicationWithId} from "@/models/Medication";
+
+
 
 const { width } = Dimensions.get("window");
+
+
+const fetchMedications = async () => {
+    const {session} = useAuthContext();
+    if (!session) {
+        return <Redirect href={"/login"}/>;
+    }
+    const [historyData, setHistoryData] = useState<Array<MedicationWithId>>([]);
+
+    useEffect(() => {
+        if (session!.userID) {
+            fetchMedications();
+        }
+    }, [session!.userID]);
+    try {
+        if (!session?.userID) {
+            console.error("Can't fetch user medications: User ID is undefined or null");
+            return; // Prevent the query if userId is invalid
+        }
+
+        const q = query(
+            collection(db, "usersHistory"),
+            and(where("userId", "==", session.userID), where("isInactive", "==", false))
+        );
+
+        const querySnapshot = await getDocs(q);
+        const userHistoryData = querySnapshot.docs.map(doc => ({
+            ...doc.data(),
+            medicationId: doc.id
+        } as MedicationWithId));
+        setHistoryData(userHistoryData);
+    } catch (error) {
+        console.error("Error fetching medications: ", error);
+    }
+};
+
+
 
 const data = [
     { name: "Taken", population: 27, color: "#CDD8F5", legendFontColor: "#333", legendFontSize: 15 },
