@@ -19,7 +19,7 @@ export default function MedicationsPage() {
     if (!session) {
         return <Redirect href={"/login"}/>;
     }
-    const [activeTab, setActiveTab] = useState<"Medications" | "Doctors">("Medications");
+    const [activeTab, setActiveTab] = useState<"Medications" | "Doctors" | "Reminders">("Medications");
     const [medicationList, setMedicationList] = useState<Array<MedicationWithId>>([]);
 
     useEffect(() => {
@@ -37,11 +37,14 @@ export default function MedicationsPage() {
 
             const q = query(
                 collection(db, "usersMedication"),
-                and(where("userId", "==", session.userID) , where("isInactive", "==", false))
+                and(where("userId", "==", session.userID), where("isInactive", "==", false))
             );
 
             const querySnapshot = await getDocs(q);
-            const userMedicationData = querySnapshot.docs.map(doc => ({...doc.data(), medicationId: doc.id} as MedicationWithId));
+            const userMedicationData = querySnapshot.docs.map(doc => ({
+                ...doc.data(),
+                medicationId: doc.id
+            } as MedicationWithId));
             setMedicationList(userMedicationData);
         } catch (error) {
             console.error("Error fetching medications: ", error);
@@ -96,6 +99,11 @@ export default function MedicationsPage() {
                         Medications
                     </Text>
                 </TouchableOpacity>
+                <TouchableOpacity onPress={() => setActiveTab("Reminders")}>
+                    <Text style={[styles.tabText, activeTab === "Reminders" && styles.activeTabText]}>
+                        Reminders
+                    </Text>
+                </TouchableOpacity>
                 <TouchableOpacity onPress={() => setActiveTab("Doctors")}>
                     <Text style={[styles.tabText, activeTab === "Doctors" && styles.activeTabText]}>
                         Doctors
@@ -109,7 +117,8 @@ export default function MedicationsPage() {
                 contentContainerStyle={styles.scrollViewContent}>
                 {(activeTab === "Medications")
                     && medicationList.map((item, index) => (
-                        <TouchableOpacity key={index} style={styles.card} onPress={() => handleMedicationItemPress(item.medicationId)}>
+                        <TouchableOpacity key={index} style={styles.card}
+                                          onPress={() => handleMedicationItemPress(item.medicationId)}>
                             <View style={styles.cardTextContainer}>
                                 <Text style={styles.cardTitle}>{item.name}</Text>
                                 <Text style={styles.cardSubtitle}>
@@ -132,10 +141,27 @@ export default function MedicationsPage() {
                         </TouchableOpacity>
                     ))
                 }
+
+                {(activeTab === "Reminders") && (
+                    <Text>Reminders</Text>
+                )
+                }
             </ScrollView>
 
             <TouchableOpacity style={styles.addButton}
-                              onPress={() => router.push("/medications/addMedication")}>
+                              onPress={() => {
+                                  switch (activeTab) {
+                                        case "Medications":
+                                            router.push("/medications/addMedication");
+                                            break;
+                                        case "Doctors":
+                                            // router.push("/docteur/add"); Not yet implemented
+                                            break;
+                                        case "Reminders":
+                                            router.push("/reminders/addReminder");
+                                            break;
+                                    }
+                              }}>
                 <Text style={styles.addButtonText}>+</Text>
             </TouchableOpacity>
         </View>
