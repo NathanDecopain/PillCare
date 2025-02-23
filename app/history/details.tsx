@@ -1,15 +1,15 @@
-import React, {useEffect, useState} from "react";
-import {View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions} from "react-native";
-import {Redirect, router, useLocalSearchParams} from "expo-router";
-import {and, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where} from "firebase/firestore";
-import {db} from "config/firebase-config";
-import {HistoryEntryFromFirestore} from "@/models/HistoryEntry";
-import {Picker} from "@react-native-picker/picker";
-import {MedicationWithId} from "@/models/Medication";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions } from "react-native";
+import { Redirect, router, useLocalSearchParams } from "expo-router";
+import { and, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { db } from "config/firebase-config";
+import { HistoryEntryFromFirestore } from "@/models/HistoryEntry";
+import { Picker } from "@react-native-picker/picker";
+import { MedicationWithId } from "@/models/Medication";
 import MyDateTimePicker from "@/components/MyDateTimePicker";
-import {Timestamp} from "@firebase/firestore";
+import { Timestamp } from "@firebase/firestore";
 
-const {width} = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 export default function HistoryDetails() {
     const historyId = useLocalSearchParams().historyId as string;
@@ -17,7 +17,7 @@ export default function HistoryDetails() {
 
     // If history item is not found, redirect to the home page on today's date
     if (!historyId) {
-        router.replace({pathname: "/home"});
+        router.replace({ pathname: "/home" });
     }
 
     const [historyEntry, setHistoryEntry] = useState<HistoryEntryFromFirestore>();
@@ -28,7 +28,7 @@ export default function HistoryDetails() {
             if (historyId) {
                 getDoc(doc(db, "usersHistory", historyId)).then((doc) => {
                     if (doc.exists()) {
-                        setHistoryEntry({...doc.data(), historyId: doc.id} as HistoryEntryFromFirestore);
+                        setHistoryEntry({ ...doc.data(), historyId: doc.id } as HistoryEntryFromFirestore);
                     } else {
                         console.error("No such document!");
                     }
@@ -62,12 +62,12 @@ export default function HistoryDetails() {
 
     // Handle changes to the history entry object (except dateTime)
     const handleChange = (key: keyof HistoryEntryFromFirestore, value: string) => {
-        setHistoryEntry((prev) => ({...prev, [key]: value}) as HistoryEntryFromFirestore);
+        setHistoryEntry((prev) => ({ ...prev, [key]: value }) as HistoryEntryFromFirestore);
     };
 
     // Handle changes to the history entry object (dateTime)
     const handleDateTimeChange = (value: Date) => {
-        setHistoryEntry((prev) => ({...prev, dateTime: Timestamp.fromDate(value)}) as HistoryEntryFromFirestore);
+        setHistoryEntry((prev) => ({ ...prev, dateTime: Timestamp.fromDate(value) }) as HistoryEntryFromFirestore);
     };
 
     const updateHistoryEntry = async () => {
@@ -78,7 +78,7 @@ export default function HistoryDetails() {
                 // Redirect to the home page on the history item's date
                 router.push({
                     pathname: "/home",
-                    params: {initialDay: historyEntry.dateTime.toDate().toISOString().split("T")[0]}
+                    params: { initialDay: historyEntry.dateTime.toDate().toISOString().split("T")[0] }
                 })
             }
         } catch (e) {
@@ -92,7 +92,7 @@ export default function HistoryDetails() {
                 await deleteDoc(doc(db, "usersHistory", historyEntry.historyId));
                 router.replace({
                     pathname: "/home",
-                    params: {initialDay: historyEntry?.dateTime.toDate().toISOString().split("T")[0]}
+                    params: { initialDay: historyEntry?.dateTime.toDate().toISOString().split("T")[0] }
                 });
             }
         } catch (e) {
@@ -101,56 +101,65 @@ export default function HistoryDetails() {
     };
 
     return (
-        <View style={{flex: 1, backgroundColor: "#fff"}}>
+        <View style={{ flex: 1, backgroundColor: "#fff" }}>
+            {/* Header */}
+            <View style={styles.header}>
+                <Image source={require("assets/icon/logo.png")} style={styles.logo} />
+            </View>
             {/* Contenu principal */}
             <View style={styles.container}>
                 {/* Bouton de retour */}
                 <TouchableOpacity style={styles.backButton} onPress={() => {
                     router.replace({
                         pathname: "/home",
-                        params: {initialDay: historyEntry?.dateTime.toDate().toISOString().split("T")[0]}
+                        params: { initialDay: historyEntry?.dateTime.toDate().toISOString().split("T")[0] }
                     })
                 }}>
-                    <Image source={require("assets/icon/retour.png")} style={styles.backIcon}/>
-                    </TouchableOpacity>
+                    <Image source={require("assets/icon/retour.png")} style={styles.backIcon} />
+                </TouchableOpacity>
                 {!historyEntry ? (<Text>Loading...</Text>) : (
                     <View style={styles.form}>
-                    {/* Nom du médicament et picker associé */}
-                    <Text style={styles.label}>Medication</Text>
-                    <Picker selectedValue={historyEntry.medicationId}
-                            onValueChange={(itemValue) => handleChange("medicationId", itemValue)}>
-                        <Picker.Item label="Select a medication" value=""/>
-                        {medicationList.map((medication) => (
-                            <Picker.Item key={medication.medicationId} label={medication.name}
-                                         value={medication.medicationId}/>
-                        ))}
-                    </Picker>
-                    <Text style={styles.label}>Date and time</Text>
-                    <MyDateTimePicker dateTime={historyEntry.dateTime.toDate()}
-                                      setDateTime={(value) => handleDateTimeChange(value)}/>
+                        {/* Nom du médicament et picker associé */}
+                        <Text style={styles.label}>Medication</Text>
+                        <View style={styles.pickerWrapper}>
+                            <Picker
+                                selectedValue={historyEntry.medicationId}
+                                onValueChange={(itemValue) => handleChange("medicationId", itemValue)}
+                                style={styles.picker}
+                            >
+                                <Picker.Item label="Select a medication" value="" />
+                                {medicationList.map((medication) => (
+                                    <Picker.Item key={medication.medicationId} label={medication.name} value={medication.medicationId} />
+                                ))}
+                            </Picker>
+                        </View>
 
-                    <Text style={styles.label}>Observation</Text>
-                    <TextInput
-                        style={[styles.input, styles.notesInput]}
-                        multiline
-                        value={historyEntry.observation}
-                        onChangeText={(text) => handleChange("observation", text)}
-                    />
+                        <Text style={styles.label}>Date and time</Text>
+                        <MyDateTimePicker dateTime={historyEntry.dateTime.toDate()}
+                            setDateTime={(value) => handleDateTimeChange(value)} />
+
+                        <Text style={styles.label}>Observation</Text>
+                        <TextInput
+                            style={[styles.input, styles.notesInput]}
+                            multiline
+                            value={historyEntry.observation}
+                            onChangeText={(text) => handleChange("observation", text)}
+                        />
+                    </View>
+                )}
+                {/* Bouton save */}
+                <TouchableOpacity style={styles.saveButton} onPress={updateHistoryEntry}>
+                    <Text style={styles.saveButtonText}>Save</Text>
+                </TouchableOpacity>
+
+                {/* Bouton de suppression */}
+                <TouchableOpacity style={styles.cancelButton} onPress={deleteHistoryEntry}>
+                    <Text style={styles.cancelButtonText}>Delete</Text>
+                </TouchableOpacity>
             </View>
-            )}
-            {/* Bouton save */}
-            <TouchableOpacity style={styles.saveButton} onPress={updateHistoryEntry}>
-                <Text style={styles.saveButtonText}>Save</Text>
-            </TouchableOpacity>
-
-            {/* Bouton de suppression */}
-            <TouchableOpacity style={styles.cancelButton} onPress={deleteHistoryEntry}>
-                <Text style={styles.cancelButtonText}>Delete</Text>
-            </TouchableOpacity>
         </View>
-</View>
-)
-    ;
+    )
+        ;
 }
 
 const styles = StyleSheet.create({
@@ -161,6 +170,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         borderRadius: 25,
+
     },
     logo: {
         width: 100,
@@ -229,4 +239,34 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "#fff",
     },
+    pickerWrapper: {
+        backgroundColor: "#F5F5FF",
+        borderRadius: 10,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: "#ccc",
+        height: 50,
+        justifyContent: "center",
+        paddingHorizontal: 10,
+    },
+
+    picker: {
+        width: "100%",
+        color: "#666",
+    },
+
+    dateTimePickerWrapper: {
+        backgroundColor: "#F5F5FF",
+        borderRadius: 10,
+        marginBottom: 15,
+        paddingHorizontal: 15,
+        borderWidth: 1,
+        borderColor: "#ccc",
+        height: 50,
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center"
+    },
+
 });

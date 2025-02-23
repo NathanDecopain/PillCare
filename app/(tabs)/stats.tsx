@@ -26,20 +26,19 @@ const StatisticsPage = () => {
     }, []);
 
     return (
-    <View style={styles.container}>
-        
-    <View style={styles.header}>
-        <Image source={require("assets/icon/logo.png")} style={styles.logo} />
-    </View>
-    <ScrollView style={styles.container}>
-
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <Image source={require("assets/icon/logo.png")} style={styles.logo} />
+            </View>
+            
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <Text style={styles.title}>This Month</Text>
                 <View style={styles.card}>
-                    
                     <Text style={styles.medicineName}>Acetaminophen</Text>
                     <View style={styles.chartContainer}>
                         <PieChart
                             data={data}
-                            width={width * 0.9}
+                            width={width * 0.8} 
                             height={200}
                             chartConfig={{
                                 color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
@@ -57,7 +56,7 @@ const StatisticsPage = () => {
                     <View style={styles.chartContainer}>
                         <PieChart
                             data={data}
-                            width={width * 0.9}
+                            width={width * 0.8}
                             height={200}
                             chartConfig={{
                                 color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
@@ -69,7 +68,6 @@ const StatisticsPage = () => {
                         />
                     </View>
                 </View>
-
             </ScrollView>
         </View>
     );
@@ -79,27 +77,21 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#F8F9FD",
+        alignItems: "center", 
     },
     header: {
-      width: "100%",
-      height: 110,
-      backgroundColor: "#CDD8F5",
-      justifyContent: "center",
-      alignItems: "center",
-      borderRadius: 25,
-  
-  },
-  logo: {
-      width: 100,
-      height: 100,
-      paddingTop: 20,
-      resizeMode: "contain",
-  },
-    headerTitle: {
-        fontSize: 22,
-        fontWeight: "bold",
-        color: "#fff",
-        marginTop: 5,
+        width: "100%",
+        height: 110,
+        backgroundColor: "#CDD8F5",
+        justifyContent: "center",
+        alignItems: "center",
+        borderRadius: 25,
+    },
+    logo: {
+        width: 100,
+        height: 100,
+        paddingTop: 20,
+        resizeMode: "contain",
     },
     scrollContainer: {
         paddingVertical: 20,
@@ -111,29 +103,23 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         padding: 20,
         marginBottom: 20,
+        alignItems: "center",
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 6,
         elevation: 5,
     },
-    sectionTitle: {
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "#333",
-        marginBottom: 10,
-        textAlign: "center",
-    },
     medicineName: {
         fontSize: 18,
         fontWeight: "bold",
-        color: "#555",
+        color: "#666",
         marginBottom: 5,
         textAlign: "center",
     },
     chartContainer: {
-        alignSelf: "center",
-        alignItems: "center",
+        justifyContent: "center",
+        alignItems: "center", 
         borderRadius: 15,
         paddingVertical: 10,
         shadowColor: "#000",
@@ -142,6 +128,12 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
+    title: {
+        fontSize: 22,
+        fontWeight: "bold",
+        color: "#666",
+        marginBottom: 10,
+    }
 });
 
 export default StatisticsPage;

@@ -35,7 +35,7 @@ export default function Login() {
 
       setError("")
       setSuccess("Connexion réussie!");
-      setTimeout(() => router.navigate("/"), 1000); // Wait 1 second and redirect
+      setTimeout(() => router.navigate("/"));
     } catch (err) {
       setError('Échec de la connexion. Vérifiez vos identifiants.');
     }
@@ -78,24 +78,24 @@ export default function Login() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.title}>Connexion</Text>
+        <Text style={styles.title}>Log in</Text>
 
         {/* Email */}
         <Text style={styles.label}>Email</Text>
         <TextInput
           value={email}
           onChangeText={setEmail}
-          placeholder="Entrez votre email"
+          placeholder="Enter your email"
           style={styles.input}
           keyboardType="email-address"
         />
 
         {/* Mot de passe */}
-        <Text style={styles.label}>Mot de passe</Text>
+        <Text style={styles.label}>Password</Text>
         <TextInput
           value={password}
           onChangeText={setPassword}
-          placeholder="Entrez votre mot de passe"
+          placeholder="Enter your password"
           style={styles.input}
           secureTextEntry
         />
@@ -105,18 +105,18 @@ export default function Login() {
 
         {/* Bouton Connexion */}
         <TouchableOpacity style={styles.button} onPress={handleEmailLogin}>
-          <Text style={styles.buttonText}>Se connecter</Text>
+          <Text style={styles.buttonText}>Log in</Text>
         </TouchableOpacity>
 
         {/* Bouton Connexion avec Google */}
         <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignIn}>
-          <Text style={styles.googleButtonText}>Continuer avec Google</Text>
+          <Text style={styles.googleButtonText}>Log in with Google</Text>
         </TouchableOpacity>
 
-        {/* 🔹 Redirection vers l'inscription */}
+        {/*Redirection vers l'inscription */}
         <TouchableOpacity onPress={() => router.push("/register")} style={styles.registerLink}>
           <Text style={styles.registerText}>
-            Pas encore de compte ? <Text style={styles.registerTextBold}>Inscrivez-vous</Text>
+            Don't have an account ? <Text style={styles.registerTextBold}>Sign up</Text>
           </Text>
         </TouchableOpacity>
       </ScrollView>

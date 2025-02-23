@@ -1,25 +1,20 @@
-import React, {useState, useEffect} from "react";
-import {View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image} from "react-native";
-import {Ionicons} from "@expo/vector-icons";
-import {Redirect, router, useRouter} from "expo-router";
-import {db} from "config/firebase-config";
-import {collection, addDoc, onSnapshot, getDocs, setDoc, doc, where, query, and} from "firebase/firestore";
-import {useAuthContext} from "@/contexts/AuthContext";
-import {Medication, MedicationWithId} from "@/models/Medication";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { Redirect, router } from "expo-router";
+import { db } from "config/firebase-config";
+import { collection, getDocs, query, where, and } from "firebase/firestore";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { MedicationWithId } from "@/models/Medication";
 
-const {width} = Dimensions.get("window");
-
-const doctors = [
-    {name: "Dr. Smith", specialty: "Cardiologist", email: "dr.smith@example.com", phone: "+1 514-999-1234"},
-    {name: "Dr. Johnson", specialty: "Dermatologist", email: "dr.johnson@example.com", phone: "+1 514-888-5678"},
-];
+const { width } = Dimensions.get("window");
 
 export default function MedicationsPage() {
-    const {session} = useAuthContext();
+    const { session } = useAuthContext();
     if (!session) {
-        return <Redirect href={"/login"}/>;
+        return <Redirect href={"/login"} />;
     }
-    const [activeTab, setActiveTab] = useState<"Medications" | "Doctors">("Medications");
+
     const [medicationList, setMedicationList] = useState<Array<MedicationWithId>>([]);
 
     useEffect(() => {
@@ -32,44 +27,23 @@ export default function MedicationsPage() {
         try {
             if (!session?.userID) {
                 console.error("Can't fetch user medications: User ID is undefined or null");
-                return; // Prevent the query if userId is invalid
+                return;
             }
 
             const q = query(
                 collection(db, "usersMedication"),
-                and(where("userId", "==", session.userID) , where("isInactive", "==", false))
+                and(where("userId", "==", session.userID), where("isInactive", "==", false))
             );
 
             const querySnapshot = await getDocs(q);
-            const userMedicationData = querySnapshot.docs.map(doc => ({...doc.data(), medicationId: doc.id} as MedicationWithId));
+            const userMedicationData = querySnapshot.docs.map(doc => ({
+                ...doc.data(),
+                medicationId: doc.id
+            } as MedicationWithId));
+
             setMedicationList(userMedicationData);
         } catch (error) {
             console.error("Error fetching medications: ", error);
-        }
-    };
-
-
-    const handleItemPress = (item: any) => {
-        if (activeTab === "Medications") {
-            router.push({
-                pathname: "/medications/details",
-                params: {
-                    id: item.id,
-                },
-            });
-        } else {
-            router.push({
-                pathname: "/docteur/profile",
-                params: {
-                    name: item.name,
-                    specialty: item.specialty,
-                    email: item.email,
-                    phone: item.phone,
-                    hospital: item.hospital,
-                    languages: item.languages,
-                    availability: item.availability,
-                },
-            });
         }
     };
 
@@ -86,29 +60,15 @@ export default function MedicationsPage() {
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <Image source={require("assets/icon/logo.png")} style={styles.logo}/>
+                <Image source={require("assets/icon/logo.png")} style={styles.logo} />
             </View>
 
-            {/* Tabs */}
-            <View style={styles.tabs}>
-                <TouchableOpacity onPress={() => setActiveTab("Medications")}>
-                    <Text style={[styles.tabText, activeTab === "Medications" && styles.activeTabText]}>
-                        Medications
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setActiveTab("Doctors")}>
-                    <Text style={[styles.tabText, activeTab === "Doctors" && styles.activeTabText]}>
-                        Doctors
-                    </Text>
-                </TouchableOpacity>
-            </View>
+            <View style={styles.divider} />
+            <ScrollView contentContainerStyle={styles.scrollViewContent}>
+            <Text style={styles.title}>Medications</Text>
 
-            <View style={styles.divider}/>
-
-            <ScrollView
-                contentContainerStyle={styles.scrollViewContent}>
-                {(activeTab === "Medications")
-                    && medicationList.map((item, index) => (
+                {medicationList.length > 0 ? (
+                    medicationList.map((item, index) => (
                         <TouchableOpacity key={index} style={styles.card} onPress={() => handleMedicationItemPress(item.medicationId)}>
                             <View style={styles.cardTextContainer}>
                                 <Text style={styles.cardTitle}>{item.name}</Text>
@@ -116,26 +76,19 @@ export default function MedicationsPage() {
                                     {item.type}
                                 </Text>
                             </View>
-                            <Ionicons name="chevron-forward" size={24} color="#fff" style={styles.arrowIcon}/>
+                            <Ionicons name="chevron-forward" size={24} color="#fff" style={styles.arrowIcon} />
                         </TouchableOpacity>
                     ))
-                }
-
-                {(activeTab === "Doctors")
-                    && doctors.map((item, index) => (
-                        <TouchableOpacity key={index} style={styles.card} onPress={() => handleItemPress(item)}>
-                            <View style={styles.cardTextContainer}>
-                                <Text style={styles.cardTitle}>{item.name}</Text>
-                                <Text style={styles.cardSubtitle}>{item.specialty}</Text>
-                            </View>
-                            <Ionicons name="chevron-forward" size={24} color="#fff" style={styles.arrowIcon}/>
-                        </TouchableOpacity>
-                    ))
-                }
+                ) : (
+                    <View style={styles.noItemsContainer}>
+                        <Image source={require("assets/icon/empty.png")} style={styles.noItemsIcon} />
+                        <Text style={styles.noItemsText}>No medications added yet!</Text>
+                        <Text style={styles.noItemsSubText}>Tap the + button below to add one.</Text>
+                    </View>
+                )}
             </ScrollView>
 
-            <TouchableOpacity style={styles.addButton}
-                              onPress={() => router.push("/medications/addMedication")}>
+            <TouchableOpacity style={styles.addButton} onPress={() => router.push("/medications/addMedication")}>
                 <Text style={styles.addButtonText}>+</Text>
             </TouchableOpacity>
         </View>
@@ -154,27 +107,12 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         borderRadius: 25,
-
     },
     logo: {
         width: 100,
         height: 100,
         paddingTop: 20,
         resizeMode: "contain",
-    },
-    tabs: {
-        flexDirection: "row",
-        justifyContent: "space-around",
-        marginVertical: 10,
-    },
-    tabText: {
-        fontSize: 16,
-        color: "#666",
-    },
-    activeTabText: {
-        color: "#000",
-        fontWeight: "bold",
-        textDecorationLine: "underline",
     },
     divider: {
         height: 1,
@@ -197,7 +135,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         shadowColor: "#000",
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 5,
@@ -226,10 +164,10 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         position: "absolute",
-        bottom: 80,
+        bottom: 24,
         alignSelf: "center",
         shadowColor: "#000",
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 5,
@@ -238,4 +176,37 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 37,
     },
+    noItemsContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 50,
+        paddingHorizontal: 20,
+    },
+    noItemsIcon: {
+        width: 100,
+        height: 100,
+        marginBottom: 10,
+        opacity: 0.5,
+    },
+    noItemsText: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#333",
+    },
+    noItemsSubText: {
+        fontSize: 14,
+        color: "#666",
+        marginTop: 5,
+        textAlign: "center",
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: "bold",
+        color: "#666",
+        marginBottom: 10,
+        textAlign: "center", 
+        alignSelf: "center", 
+        width: "100%", 
+        marginTop: 10
+    }
 });

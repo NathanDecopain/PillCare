@@ -1,4 +1,4 @@
-import { Text, StyleSheet, TouchableOpacity, View, ScrollView, Dimensions } from "react-native";
+import { Text, StyleSheet, TouchableOpacity, View, ScrollView, Dimensions, Image } from "react-native";
 import { CalendarProvider, ExpandableCalendar } from "react-native-calendars";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -91,14 +91,20 @@ export default function Home() {
                                     <Text style={styles.medicationTime}>
                                         {entry.type === "medication"
                                             ? entry.dateTime.toDate().toLocaleTimeString("en-us", { hour: "2-digit", minute: "2-digit" })
-                                            : entry.observation}
+                                            : "View Note"}
                                     </Text>
                                 </View>
                             </TouchableOpacity>
                         ))
                     ) : (
-                        <Text>Aucun item pour cette journée</Text>
+                        <View style={styles.noItemsContainer}>
+                            <Image source={require("assets/icon/empty.png")} style={styles.noItemsIcon} />
+                            <Text style={styles.noItemsText}>No records for today!</Text>
+                            <Text style={styles.noItemsSubText}>Tap the + button below to add one.</Text>
+                        </View>
+
                     )}
+
                 </ScrollView>
                 <TouchableOpacity
                     style={styles.addButton}
@@ -159,7 +165,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         position: "absolute",
-        bottom: 80,
+        bottom: -10,
         alignSelf: "center",
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
@@ -171,4 +177,28 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 38,
     },
+    noItemsContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 50,
+        paddingHorizontal: 20,
+    },
+    noItemsIcon: {
+        width: 100,
+        height: 100,
+        marginBottom: 10,
+        opacity: 0.5,
+    },
+    noItemsText: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#333",
+    },
+    noItemsSubText: {
+        fontSize: 14,
+        color: "#666",
+        marginTop: 5,
+        textAlign: "center",
+    },
+    
 });
