@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "263737313753",
+    "project_id": "examen-mi-session-9d623",
+    "storage_bucket": "examen-mi-session-9d623.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:263737313753:android:bf1e5463d7d4d2e7b4f1c8",
+        "android_client_info": {
+          "package_name": "com.nathandecopain.pillcare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "263737313753-46hgh6das6illu82vll1hfs4j77saao8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiyiLPQJvjFSi7Nhe5FGV-8LRzJstm8pc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "263737313753-46hgh6das6illu82vll1hfs4j77saao8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

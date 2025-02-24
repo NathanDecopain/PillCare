@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "testnative",
-    "slug": "testnative",
+    "name": "pillcare",
+    "slug": "pillcare",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,7 +15,9 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.nathandecopain.pillcare",
+      "googleServicesFile": "./android/app/google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +39,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "4da5a062-3ce6-49c0-87c3-4fe7a13a1761"
+      }
     }
   }
 }

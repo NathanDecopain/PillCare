@@ -3,6 +3,7 @@ import {Redirect, Stack, Tabs} from 'expo-router';
 import {AuthContextProvider, useAuthContext} from "@/contexts/AuthContext";
 import React from "react";
 import {Image, StyleSheet, Text} from "react-native";
+import {usePushNotifications} from "@/hooks/usePushNotifications";
 
 export default function TabLayout() {
     const {session, loading} = useAuthContext();
@@ -10,6 +11,10 @@ export default function TabLayout() {
     if (!session) {
         return <Redirect href="/login"/>;
     }
+
+    const {expoPushToken, notification} = usePushNotifications();
+
+    console.log("expoPushToken", expoPushToken);
 
     return (
         <Tabs screenOptions={{
