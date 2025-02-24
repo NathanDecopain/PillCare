@@ -1,43 +1,59 @@
 import { View, Text, StyleSheet, Dimensions, ScrollView, Image } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 import React, { useState, useEffect } from "react";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { db } from "config/firebase-config";
 import { collection, getDocs, query, where, and } from "firebase/firestore";
+import { db } from "config/firebase-config";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { Redirect } from "expo-router";
 
 const { width } = Dimensions.get("window");
+
 type MedicationWithId = {
-    createdAt: string; // You may need to use `Timestamp` from Firestore if dealing with Firestore timestamps
-    dateTime: string;  // Adjust accordingly if you need a Date object instead
+    createdAt: string;
+    dateTime: string;
     dosage: string;
     historyId: string;
     medicationId: string;
-    observation?: string; // Optional if it may not always be present
+    observation?: string;
     type: string;
     userId: string;
 };
+
 const StatisticsPage = () => {
     const [historyData, setHistoryData] = useState<MedicationWithId[]>([]);
+    const [medicationNames, setMedicationNames] = useState<Record<string, string>>({});
     const { session } = useAuthContext();
 
     useEffect(() => {
         if (!session?.userID) return;
-        
+
         const fetchMedications = async () => {
             try {
-                const q = query(
+                // Fetch medication history
+                const historyQuery = query(
                     collection(db, "usersHistory"),
                     and(where("userId", "==", session.userID), where("type", "==", "medication"))
                 );
-                const querySnapshot = await getDocs(q);
-                const userHistoryData = querySnapshot.docs.map(doc => ({
-                    ...(doc.data() as MedicationWithId), // Cast Firestore data to `MedicationWithId`
-                    medicationId: doc.id
-                }));
+                const historySnapshot = await getDocs(historyQuery);
+                const userHistoryData = historySnapshot.docs.map(doc => doc.data() as MedicationWithId);
                 setHistoryData(userHistoryData);
-                
+
+                // Get unique medication IDs
+                const medicationIds = [...new Set(userHistoryData.map(med => med.medicationId))];
+
+                // Fetch medication names
+                const medQuery = query(collection(db, "usersMedication"), where("userId", "==", session.userID));
+                const medSnapshot = await getDocs(medQuery);
+                const medMap: Record<string, string> = {};
+
+                medSnapshot.docs.forEach(doc => {
+                    const medData = doc.data();
+                    if (medicationIds.includes(doc.id)) {
+                        medMap[doc.id] = medData.name;
+                    }
+                });
+
+                setMedicationNames(medMap);
             } catch (error) {
                 console.error("Error fetching medications: ", error);
             }
@@ -47,16 +63,31 @@ const StatisticsPage = () => {
     }, [session?.userID]);
 
     if (!session) {
-        return <Redirect href={'/login'} />;
+        return <Redirect href={"/login"} />;
     }
 
-    const takenCount = historyData.length;
-    const notTakenCount = Math.max(0, 30 - takenCount); // Assuming 30-day tracking period
-    
-    const data = [
-        { name: "Taken", population: takenCount, color: "#CDD8F5", legendFontColor: "#333", legendFontSize: 15 },
-        { name: "Not taken", population: notTakenCount, color: "#7B83EB", legendFontColor: "#333", legendFontSize: 15 }
+    // Group medications by their medicationId
+    const medicationCounts = historyData.reduce((acc, med) => {
+        if (med.medicationId) {
+            acc[med.medicationId] = (acc[med.medicationId] || 0) + 1;
+        }
+        return acc;
+    }, {} as Record<string, number>);
+
+    const totalMedications = Object.values(medicationCounts).reduce((sum, count) => sum + count, 0);
+
+    const fixedColors = [
+        "#FF6384", "#36A2EB", "#FFCE56",
+        "#4BC0C0", "#9966FF", "#FF9F40"
     ];
+
+    const data = Object.entries(medicationCounts).map(([medicationId, count], index) => ({
+        name: medicationNames[medicationId] || `Medication ${index + 1}`, // Use actual name or fallback
+        population: count,
+        color: fixedColors[index % fixedColors.length], // Assign colors cyclically
+        legendFontColor: "#333",
+        legendFontSize: 15,
+    }));
 
     return (
         <View style={styles.container}>
