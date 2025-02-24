@@ -1,24 +1,25 @@
-import { View, Text, StyleSheet, Dimensions, ScrollView, Image } from "react-native";
-import { PieChart } from "react-native-chart-kit";
-import React, { useState, useEffect } from "react";
-import { collection, getDocs, query, where, and } from "firebase/firestore";
-import { db } from "config/firebase-config";
-import { useAuthContext } from "@/contexts/AuthContext";
-import { Redirect } from "expo-router";
+import {View, Text, StyleSheet, Dimensions, ScrollView, Image} from "react-native";
+import {PieChart} from "react-native-chart-kit";
+import React, {useState, useEffect} from "react";
+import {collection, getDocs, query, where, and} from "firebase/firestore";
+import {db} from "config/firebase-config";
+import {useAuthContext} from "@/contexts/AuthContext";
+import {Redirect} from "expo-router";
+import {MedicationWithId} from "@/models/Medication";
 
-const { width } = Dimensions.get("window");
+const {width} = Dimensions.get("window");
 
 const data = [
-    { name: "Taken", population: 27, color: "#CDD8F5", legendFontColor: "#333", legendFontSize: 15 },
-    { name: "Not taken", population: 3, color: "#7B83EB", legendFontColor: "#333", legendFontSize: 15 },
+    {name: "Taken", population: 27, color: "#CDD8F5", legendFontColor: "#333", legendFontSize: 15},
+    {name: "Not taken", population: 3, color: "#7B83EB", legendFontColor: "#333", legendFontSize: 15},
 ];
 
 const StatisticsPage = () => {
     const [historyData, setHistoryData] = useState<MedicationWithId[]>([]);
     const [medicationNames, setMedicationNames] = useState<Record<string, string>>({});
-    const { session } = useAuthContext();
+    const {session} = useAuthContext();
 
-    if (!session) return <Redirect href="/login/"/>;
+    if (!session) return <Redirect href="/login"/>;
 
     useEffect(() => {
         const fetchMedications = async () => {
@@ -57,7 +58,7 @@ const StatisticsPage = () => {
     }, [session?.userID]);
 
     if (!session) {
-        return <Redirect href={"/login"} />;
+        return <Redirect href={"/login"}/>;
     }
 
     // Group medications by their medicationId
@@ -86,54 +87,50 @@ const StatisticsPage = () => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Image source={require("assets/icon/logo.png")} style={styles.logo} />
+                <Image source={require("assets/icon/logo.png")} style={styles.logo}/>
             </View>
-            <ScrollView style={styles.container}>
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Image source={require("assets/icon/logo.png")} style={styles.logo} />
-            </View>
+            <ScrollView contentContainerStyle={styles.container}>
+                <View style={styles.container}>
+                    <ScrollView contentContainerStyle={styles.scrollContainer}>
+                        <Text style={styles.title}>This Month</Text>
+                        <View style={styles.card}>
+                            <Text style={styles.medicineName}>Medication Statistics</Text>
+                            <Text style={styles.medicineName}>Acetaminophen</Text>
+                            <View style={styles.chartContainer}>
+                                <PieChart
+                                    data={data}
+                                    width={width * 0.8}
+                                    height={200}
+                                    chartConfig={{
+                                        color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                                    }}
+                                    accessor="population"
+                                    backgroundColor="transparent"
+                                    paddingLeft="15"
+                                    absolute
+                                />
+                            </View>
+                        </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
-                <Text style={styles.title}>This Month</Text>
-                <View style={styles.card}>
-                    <Text style={styles.sectionTitle}>Medication Statistics</Text>
-                    <Text style={styles.medicineName}>Acetaminophen</Text>
-                    <View style={styles.chartContainer}>
-                        <PieChart
-                            data={data}
-                            width={width * 0.8}
-                            height={200}
-                            chartConfig={{
-                                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                            }}
-                            accessor="population"
-                            backgroundColor="transparent"
-                            paddingLeft="15"
-                            absolute
-                        />
-                    </View>
+                        <View style={styles.card}>
+                            <Text style={styles.medicineName}>Anadrol-50</Text>
+                            <View style={styles.chartContainer}>
+                                <PieChart
+                                    data={data}
+                                    width={width * 0.9}
+                                    height={200}
+                                    chartConfig={{
+                                        color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                                    }}
+                                    accessor="population"
+                                    backgroundColor="transparent"
+                                    paddingLeft="15"
+                                    absolute
+                                />
+                            </View>
+                        </View>
+                    </ScrollView>
                 </View>
-
-                <View style={styles.card}>
-                    <Text style={styles.medicineName}>Anadrol-50</Text>
-                    <View style={styles.chartContainer}>
-                        <PieChart
-                            data={data}
-                            width={width * 0.9}
-                            height={200}
-                            chartConfig={{
-                                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                            }}
-                            accessor="population"
-                            backgroundColor="transparent"
-                            paddingLeft="15"
-                            absolute
-                        />
-                    </View>
-                </View>
-            </ScrollView>
-        </View>
             </ScrollView>
         </View>
     );
@@ -171,7 +168,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         alignItems: "center",
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: {width: 0, height: 4},
         shadowOpacity: 0.1,
         shadowRadius: 6,
         elevation: 5,
@@ -189,7 +186,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         paddingVertical: 10,
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.05,
         shadowRadius: 4,
         elevation: 3,

@@ -39,7 +39,7 @@ export default function AddToHistory() {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
 
-    const handleChange = (key: keyof typeof historyEntry, value: string) => {
+    const handleChange = (key: keyof typeof historyEntry, value: string | Date) => {
         setHistoryEntry((prev) => ({ ...prev, [key]: value }));
     };
 
@@ -123,7 +123,7 @@ export default function AddToHistory() {
 
     const handleDateChange = (event: any, selectedDate?: Date | undefined) => {
         if (selectedDate) {
-            handleChange("dateTime", selectedDate.toISOString());
+            handleChange("dateTime", selectedDate);
         }
         setShowDatePicker(false);
     };
@@ -131,7 +131,7 @@ export default function AddToHistory() {
 
     const handleTimeChange = (event: any, selectedTime?: Date | undefined) => {
         if (selectedTime) {
-            handleChange("dateTime", selectedTime.toISOString());
+            handleChange("dateTime", selectedTime);
         }
         setShowTimePicker(false);
     };

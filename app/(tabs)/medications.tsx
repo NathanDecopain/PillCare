@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { Redirect, router } from "expo-router";
-import { db } from "config/firebase-config";
-import { collection, getDocs, query, where, and } from "firebase/firestore";
-import { useAuthContext } from "@/contexts/AuthContext";
-import { MedicationWithId } from "@/models/Medication";
-import {DAYS_OF_WEEK, Reminder, ReminderFromFirestore} from "@/models/Reminder";
+import React, {useState, useEffect} from "react";
+import {View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image} from "react-native";
+import {Ionicons} from "@expo/vector-icons";
+import {Redirect, router} from "expo-router";
+import {db} from "config/firebase-config";
+import {collection, getDocs, query, where, and} from "firebase/firestore";
+import {useAuthContext} from "@/contexts/AuthContext";
+import {MedicationWithId} from "@/models/Medication";
+import {DAYS_OF_WEEK, Reminder, ReminderFromFirestore, reminderType} from "@/models/Reminder";
 
-const { width } = Dimensions.get("window");
+const {width} = Dimensions.get("window");
 
 export default function MedicationsPage() {
-    const { session } = useAuthContext();
+    const {session} = useAuthContext();
     if (!session) {
-        return <Redirect href={"/login"} />;
+        return <Redirect href={"/login"}/>;
     }
     const [activeTab, setActiveTab] = useState<"Medications" | "Reminders">("Medications");
     const [medicationList, setMedicationList] = useState<Array<MedicationWithId>>([]);
@@ -35,7 +35,7 @@ export default function MedicationsPage() {
 
             const q = query(
                 collection(db, "usersMedication"),
-                and(where("userId", "==", session.userID), where("isInactive", "==", false))
+                and(where("userId", "==", session.userID))
             );
 
             const querySnapshot = await getDocs(q);
@@ -169,65 +169,69 @@ export default function MedicationsPage() {
             <ScrollView
                 contentContainerStyle={styles.scrollViewContent}>
                 {(activeTab === "Medications")
-                    && (medicationList.length > 0) ?  medicationList.map((item, index) => (
-                        <TouchableOpacity key={index} style={styles.card}
-                                          onPress={() => handleMedicationItemPress(item.medicationId)}>
-                            <View style={styles.cardTextContainer}>
-                                <Text style={styles.cardTitle}>{item.name}</Text>
-                                <Text style={styles.cardSubtitle}>
-                                    {item.type}
-                                </Text>
-                            </View>
-                            <Ionicons name="chevron-forward" size={24} color="#fff" style={styles.arrowIcon}/>
-                        </TouchableOpacity>
-                    )) : (
+                && ((medicationList.length > 0) ? medicationList.filter(item => !item.isInactive).map((item, index) => (
+                    <TouchableOpacity key={index} style={styles.card}
+                                      onPress={() => handleMedicationItemPress(item.medicationId)}>
+                        <View style={styles.cardTextContainer}>
+                            <Text style={styles.cardTitle}>{item.name}</Text>
+                            <Text style={styles.cardSubtitle}>
+                                {item.type}
+                            </Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={24} color="#fff" style={styles.arrowIcon}/>
+                    </TouchableOpacity>
+                )) : (
                     <View style={styles.noItemsContainer}>
-                        <Image source={require("assets/icon/empty.png")} style={styles.noItemsIcon} />
+                        <Image source={require("assets/icon/empty.png")} style={styles.noItemsIcon}/>
                         <Text style={styles.noItemsText}>No medications added yet!</Text>
                         <Text style={styles.noItemsSubText}>Tap the + button below to add one.</Text>
                     </View>
-                )}
+                ))}
 
                 {(activeTab === "Reminders") && <View>
-                    {(reminders.length === 0) ?
+                    {(reminders.length > 0) ? (reminders.map((item, index) => (
+                        <TouchableOpacity key={index} style={styles.card}
+                                          onPress={() => console.log("Reminder pressed: ", item)}>
+                            <View style={styles.cardTextContainer}>
+                                <Text style={styles.cardTitle}>
+                                    {item.type === reminderType.MEDICATION && item.medicationId && medicationList.find(medication => medication.medicationId === item.medicationId)?.name}
+                                    {item.type === reminderType.OBSERVATION && "Observation"}
+                                </Text>
+                                <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                                    <Text style={styles.cardTitle}>{item.label}</Text>
+                                    <Text style={styles.cardTitle}>{item.time.toDate().toLocaleString("en-US", {
+                                        hour: "numeric",
+                                        minute: "numeric",
+                                        hour12: true,
+                                    })}
+                                    </Text>
+                                </View>
+                                {/* Orbs for each day of the week, style differently if active */}
+                                {formatReminderSchedule(item)}
+                            </View>
+                            <Ionicons name="chevron-forward" size={24} color="#fff" style={styles.arrowIcon}/>
+                        </TouchableOpacity>
+                    ))) : (
                         <View style={styles.noItemsContainer}>
-                            <Image source={require("assets/icon/empty.png")} style={styles.noItemsIcon} />
+                            <Image source={require("assets/icon/empty.png")} style={styles.noItemsIcon}/>
                             <Text style={styles.noItemsText}>No medications added yet!</Text>
                             <Text style={styles.noItemsSubText}>Tap the + button below to add one.</Text>
-                        </View>                        : reminders.map((item, index) => (
-                            <TouchableOpacity key={index} style={styles.card}
-                                              onPress={() => console.log("Reminder pressed: ", item)}>
-                                <View style={styles.cardTextContainer}>
-                                    <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                                        <Text style={styles.cardTitle}>{item.label}</Text>
-                                        <Text style={styles.cardTitle}>{item.time.toDate().toLocaleString("en-US", {
-                                            hour: "numeric",
-                                            minute: "numeric",
-                                            hour12: true,
-                                        })}
-                                        </Text>
-                                    </View>
-                                    {/* Orbs for each day of the week, style differently if active */}
-                                    {formatReminderSchedule(item)}
-                                </View>
-                                <Ionicons name="chevron-forward" size={24} color="#fff" style={styles.arrowIcon}/>
-                            </TouchableOpacity>
-                        ))
+                        </View>)
                     }
                 </View>
                 }
             </ScrollView>
 
             <TouchableOpacity style={styles.addButton} onPress={() => {
-                                  switch (activeTab) {
-                                      case "Medications":
-                                          router.push("/medications/addMedication");
-                                          break;
-                                      case "Reminders":
-                                          router.push("/reminders/addReminder");
-                                          break;
-                                  }
-                              }}>
+                switch (activeTab) {
+                    case "Medications":
+                        router.push("/medications/addMedication");
+                        break;
+                    case "Reminders":
+                        router.push("/reminders/addReminder");
+                        break;
+                }
+            }}>
                 <Text style={styles.addButtonText}>+</Text>
             </TouchableOpacity>
         </View>
@@ -288,7 +292,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: {width: 0, height: 4},
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 5,
@@ -320,7 +324,7 @@ const styles = StyleSheet.create({
         bottom: 24,
         alignSelf: "center",
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: {width: 0, height: 4},
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 5,

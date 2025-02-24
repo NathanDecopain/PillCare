@@ -48,6 +48,7 @@ export type Reminder = {
 // When we get data from firestore, the dates are timestamp objects
 export type ReminderFromFirestore = Omit<Reminder, 'time' | 'startDate' | 'endDate' | 'specificDate' | 'repeatUntil'> & {
     reminderId: string,
+    medicationId?: string,
     time: Timestamp,
     startDate: Timestamp,
     endDate?: Timestamp,

@@ -70,9 +70,12 @@ export default function Home() {
         setSelectedDate(date);
     }, []);
 
+    (ExpandableCalendar as any).defaultProps = undefined;
+
     return (
         <SafeAreaView style={styles.container}>
             <CalendarProvider date={selectedDate} onDateChanged={handleDateChange} showTodayButton>
+                {/*@ts-ignore fix for defaultProps warning: https://github.com/wix/react-native-calendars/issues/2455*/}
                 <ExpandableCalendar enableSwipeMonths={false} markedDates={markedDates} />
                 <ScrollView>
                     {itemsForDate.length > 0 ? (
@@ -165,7 +168,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         position: "absolute",
-        bottom: -10,
+        bottom: 24,
         alignSelf: "center",
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
