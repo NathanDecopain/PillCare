@@ -6,6 +6,7 @@ import {db} from "config/firebase-config";
 import {collection, addDoc, onSnapshot, getDocs, setDoc, doc, where, query, and} from "firebase/firestore";
 import {useAuthContext} from "@/contexts/AuthContext";
 import {Medication, MedicationWithId} from "@/models/Medication";
+import {DAYS_OF_WEEK, Reminder, ReminderFromFirestore} from "@/models/Reminder";
 
 const {width} = Dimensions.get("window");
 
@@ -21,10 +22,12 @@ export default function MedicationsPage() {
     }
     const [activeTab, setActiveTab] = useState<"Medications" | "Doctors" | "Reminders">("Medications");
     const [medicationList, setMedicationList] = useState<Array<MedicationWithId>>([]);
+    const [reminders, setReminders] = useState<Array<ReminderFromFirestore>>([]);
 
     useEffect(() => {
         if (session!.userID) {
             fetchMedications();
+            fetchReminders();
         }
     }, [session!.userID]);
 
@@ -50,6 +53,30 @@ export default function MedicationsPage() {
             console.error("Error fetching medications: ", error);
         }
     };
+
+    const fetchReminders = async () => {
+        try {
+            if (!session?.userID) {
+                console.error("Can't fetch user reminders: User ID is undefined or null");
+                return; // Prevent the query if userId is invalid
+            }
+
+            const q = query(
+                collection(db, "usersReminders"),
+                and(where("userId", "==", session.userID))
+            );
+
+            const querySnapshot = await getDocs(q);
+            const userReminderData = querySnapshot.docs.map(doc => ({
+                ...doc.data(),
+                reminderId: doc.id
+            } as ReminderFromFirestore));
+            setReminders(userReminderData);
+            console.log("Reminders: ", userReminderData);
+        } catch (error) {
+            console.error("Error fetching reminders: ", error);
+        }
+    }
 
 
     const handleItemPress = (item: any) => {
@@ -83,6 +110,42 @@ export default function MedicationsPage() {
                 medicationId: medicationId,
             },
         });
+    }
+
+    function formatWeekdays(days: DAYS_OF_WEEK[]) {
+        return days.join(", ");
+    }
+
+    const formatReminderSchedule = (reminder: ReminderFromFirestore) => {
+        let schedule = "";
+        if (reminder.repeatMode === "DAILY") {
+            schedule = "Daily";
+        } else if (reminder.repeatMode === "WEEKLY") {
+            const weekDays = [DAYS_OF_WEEK.MONDAY, DAYS_OF_WEEK.TUESDAY,
+                DAYS_OF_WEEK.WEDNESDAY, DAYS_OF_WEEK.THURSDAY,
+                DAYS_OF_WEEK.FRIDAY, DAYS_OF_WEEK.SATURDAY, DAYS_OF_WEEK.SUNDAY];
+            /* Orbs for each day of the week, style differently if active */
+            return <View style={{flexDirection: "row"}}>
+                {weekDays.map(day => (
+                    <View key={day} style={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: 10,
+                        backgroundColor: reminder.daysOfWeek.includes(day) ? "#ccc" : "#7B83EB",
+                        marginHorizontal: 5,
+                    }}>
+                        <Text style={{color: "#fff", textAlign: "center"}}>{day.slice(0, 2)}</Text>
+                    </View>
+                ))}
+            </View>;
+        } else if (reminder.repeatMode === "MONTHLY") {
+            schedule = "Monthly on the " + reminder.specificDate;
+        } else if (reminder.repeatMode === "YEARLY") {
+            schedule = "Yearly on " + reminder.specificDate;
+        } else if (reminder.repeatMode === "CUSTOM") {
+            schedule = "Every " + reminder.intervalDays + " days, " + reminder.intervalHours + " hours, and " + reminder.intervalMinutes + " minutes";
+        }
+        return <Text>{schedule}</Text>;
     }
 
     return (
@@ -142,30 +205,52 @@ export default function MedicationsPage() {
                     ))
                 }
 
-                {(activeTab === "Reminders") && (
-                    <Text>Reminders</Text>
-                )
+                {(activeTab === "Reminders") && <View>
+                    {(reminders.length === 0) ?
+                        <Text style={{textAlign: "center", color: "#666", marginTop: 20}}>No reminders set</Text>
+                        : reminders.map((item, index) => (
+                            <TouchableOpacity key={index} style={styles.card}
+                                              onPress={() => console.log("Reminder pressed: ", item)}>
+                                <View style={styles.cardTextContainer}>
+                                    <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                                        <Text style={styles.cardTitle}>{item.label}</Text>
+                                        <Text style={styles.cardTitle}>{item.time.toDate().toLocaleString("en-US", {
+                                            hour: "numeric",
+                                            minute: "numeric",
+                                            hour12: true,
+                                        })}
+                                        </Text>
+                                    </View>
+                                    {/* Orbs for each day of the week, style differently if active */}
+                                    {formatReminderSchedule(item)}
+                                </View>
+                                <Ionicons name="chevron-forward" size={24} color="#fff" style={styles.arrowIcon}/>
+                            </TouchableOpacity>
+                        ))
+                    }
+                </View>
                 }
             </ScrollView>
 
             <TouchableOpacity style={styles.addButton}
                               onPress={() => {
                                   switch (activeTab) {
-                                        case "Medications":
-                                            router.push("/medications/addMedication");
-                                            break;
-                                        case "Doctors":
-                                            // router.push("/docteur/add"); Not yet implemented
-                                            break;
-                                        case "Reminders":
-                                            router.push("/reminders/addReminder");
-                                            break;
-                                    }
+                                      case "Medications":
+                                          router.push("/medications/addMedication");
+                                          break;
+                                      case "Doctors":
+                                          // router.push("/docteur/add"); Not yet implemented
+                                          break;
+                                      case "Reminders":
+                                          router.push("/reminders/addReminder");
+                                          break;
+                                  }
                               }}>
                 <Text style={styles.addButtonText}>+</Text>
             </TouchableOpacity>
         </View>
-    );
+    )
+        ;
 }
 
 const styles = StyleSheet.create({
