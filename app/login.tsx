@@ -35,7 +35,7 @@ export default function Login() {
 
       setError("")
       setSuccess("Connexion réussie!");
-      setTimeout(() => router.navigate("/"), 1000); // Wait 1 second and redirect
+      setTimeout(() => router.replace("/"), 1000); // Wait 1 second and redirect
     } catch (err) {
       setError('Échec de la connexion. Vérifiez vos identifiants.');
     }

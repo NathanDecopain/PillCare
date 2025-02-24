@@ -29,19 +29,60 @@ export const AuthContextProvider = ({children}: {
     const [session, setSession] = useState<AppUser | null>(null); // User can be null if user is logged out
     const [loading, setLoading] = useState(true); // Access to check if user data has been fetched.
 
-    // ON MOUNT / ON PROVIDER CONSUMPTION:
+    // Restore session from AsyncStorage on app start
     useEffect(() => {
-        // On provider consumption, start listening for auth state changes on the server.
-        const unsubscribe = onAuthStateChanged(auth, async (userCred) => {
-            if (!userCred) { // If user isn't logged in, remove user data from client async storage
-                await AsyncStorage.removeItem("user");
-                console.log("User disconnected.")
-            } else {
+        const restoreSession = async () => {
+            try {
                 const sessionDataString = await AsyncStorage.getItem("user");
                 if (sessionDataString) {
-                    setSession(JSON.parse(sessionDataString));
-                    console.log(`Logged in as ${JSON.stringify(session)}`)
+                    const sessionData = JSON.parse(sessionDataString);
+                    setSession(sessionData);
                 }
+            } catch (error) {
+                console.error("Failed to restore session from AsyncStorage:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        restoreSession();
+    }, []);
+
+    // ON MOUNT / ON PROVIDER CONSUMPTION:
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (userCred) => {
+            if (!userCred) {
+                // If user isn't logged in, remove user data from client async storage
+                await AsyncStorage.removeItem("user");
+                setSession(null);
+                console.log("User disconnected.");
+            } else {
+                // Fetch additional user details from Firestore
+                const userRef = doc(db, "users", userCred.uid);
+                const userSnapshot = await getDoc(userRef);
+
+                if (!userSnapshot.exists()) {
+                    console.error("User data not found in Firestore.");
+                    await logout();
+                    return;
+                }
+
+                const userData = userSnapshot.data();
+
+                // Store user details persistently with async storage
+                const userDetails: AppUser = {
+                    email: userCred.email!,
+                    emailVerified: userCred.emailVerified,
+                    firstName: userData.firstName,
+                    lastName: userData.lastName,
+                    dateOfBirth: userData.dateOfBirth,
+                    phoneNumber: userData.phoneNumber,
+                    userID: userCred.uid,
+                };
+
+                await AsyncStorage.setItem("user", JSON.stringify(userDetails));
+                setSession(userDetails);
+                console.log(`Logged in as ${JSON.stringify(userDetails)}`);
             }
             setLoading(false);
         });
