@@ -1,26 +1,21 @@
-import React, {useState, useEffect} from "react";
-import {View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image} from "react-native";
-import {Ionicons} from "@expo/vector-icons";
-import {Redirect, router, useRouter} from "expo-router";
-import {db} from "config/firebase-config";
-import {collection, addDoc, onSnapshot, getDocs, setDoc, doc, where, query, and} from "firebase/firestore";
-import {useAuthContext} from "@/contexts/AuthContext";
-import {Medication, MedicationWithId} from "@/models/Medication";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Image } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { Redirect, router } from "expo-router";
+import { db } from "config/firebase-config";
+import { collection, getDocs, query, where, and } from "firebase/firestore";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { MedicationWithId } from "@/models/Medication";
 import {DAYS_OF_WEEK, Reminder, ReminderFromFirestore} from "@/models/Reminder";
 
-const {width} = Dimensions.get("window");
-
-const doctors = [
-    {name: "Dr. Smith", specialty: "Cardiologist", email: "dr.smith@example.com", phone: "+1 514-999-1234"},
-    {name: "Dr. Johnson", specialty: "Dermatologist", email: "dr.johnson@example.com", phone: "+1 514-888-5678"},
-];
+const { width } = Dimensions.get("window");
 
 export default function MedicationsPage() {
-    const {session} = useAuthContext();
+    const { session } = useAuthContext();
     if (!session) {
-        return <Redirect href={"/login"}/>;
+        return <Redirect href={"/login"} />;
     }
-    const [activeTab, setActiveTab] = useState<"Medications" | "Doctors" | "Reminders">("Medications");
+    const [activeTab, setActiveTab] = useState<"Medications" | "Reminders">("Medications");
     const [medicationList, setMedicationList] = useState<Array<MedicationWithId>>([]);
     const [reminders, setReminders] = useState<Array<ReminderFromFirestore>>([]);
 
@@ -167,11 +162,6 @@ export default function MedicationsPage() {
                         Reminders
                     </Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setActiveTab("Doctors")}>
-                    <Text style={[styles.tabText, activeTab === "Doctors" && styles.activeTabText]}>
-                        Doctors
-                    </Text>
-                </TouchableOpacity>
             </View>
 
             <View style={styles.divider}/>
@@ -179,7 +169,7 @@ export default function MedicationsPage() {
             <ScrollView
                 contentContainerStyle={styles.scrollViewContent}>
                 {(activeTab === "Medications")
-                    && medicationList.map((item, index) => (
+                    && (medicationList.length > 0) ?  medicationList.map((item, index) => (
                         <TouchableOpacity key={index} style={styles.card}
                                           onPress={() => handleMedicationItemPress(item.medicationId)}>
                             <View style={styles.cardTextContainer}>
@@ -190,25 +180,21 @@ export default function MedicationsPage() {
                             </View>
                             <Ionicons name="chevron-forward" size={24} color="#fff" style={styles.arrowIcon}/>
                         </TouchableOpacity>
-                    ))
-                }
-
-                {(activeTab === "Doctors")
-                    && doctors.map((item, index) => (
-                        <TouchableOpacity key={index} style={styles.card} onPress={() => handleItemPress(item)}>
-                            <View style={styles.cardTextContainer}>
-                                <Text style={styles.cardTitle}>{item.name}</Text>
-                                <Text style={styles.cardSubtitle}>{item.specialty}</Text>
-                            </View>
-                            <Ionicons name="chevron-forward" size={24} color="#fff" style={styles.arrowIcon}/>
-                        </TouchableOpacity>
-                    ))
-                }
+                    )) : (
+                    <View style={styles.noItemsContainer}>
+                        <Image source={require("assets/icon/empty.png")} style={styles.noItemsIcon} />
+                        <Text style={styles.noItemsText}>No medications added yet!</Text>
+                        <Text style={styles.noItemsSubText}>Tap the + button below to add one.</Text>
+                    </View>
+                )}
 
                 {(activeTab === "Reminders") && <View>
                     {(reminders.length === 0) ?
-                        <Text style={{textAlign: "center", color: "#666", marginTop: 20}}>No reminders set</Text>
-                        : reminders.map((item, index) => (
+                        <View style={styles.noItemsContainer}>
+                            <Image source={require("assets/icon/empty.png")} style={styles.noItemsIcon} />
+                            <Text style={styles.noItemsText}>No medications added yet!</Text>
+                            <Text style={styles.noItemsSubText}>Tap the + button below to add one.</Text>
+                        </View>                        : reminders.map((item, index) => (
                             <TouchableOpacity key={index} style={styles.card}
                                               onPress={() => console.log("Reminder pressed: ", item)}>
                                 <View style={styles.cardTextContainer}>
@@ -232,14 +218,10 @@ export default function MedicationsPage() {
                 }
             </ScrollView>
 
-            <TouchableOpacity style={styles.addButton}
-                              onPress={() => {
+            <TouchableOpacity style={styles.addButton} onPress={() => {
                                   switch (activeTab) {
                                       case "Medications":
                                           router.push("/medications/addMedication");
-                                          break;
-                                      case "Doctors":
-                                          // router.push("/docteur/add"); Not yet implemented
                                           break;
                                       case "Reminders":
                                           router.push("/reminders/addReminder");
@@ -249,8 +231,7 @@ export default function MedicationsPage() {
                 <Text style={styles.addButtonText}>+</Text>
             </TouchableOpacity>
         </View>
-    )
-        ;
+    );
 }
 
 const styles = StyleSheet.create({
@@ -265,7 +246,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         borderRadius: 25,
-
     },
     logo: {
         width: 100,
@@ -308,7 +288,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         shadowColor: "#000",
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 5,
@@ -337,10 +317,10 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         position: "absolute",
-        bottom: 80,
+        bottom: 24,
         alignSelf: "center",
         shadowColor: "#000",
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 5,
@@ -349,4 +329,37 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 37,
     },
+    noItemsContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 50,
+        paddingHorizontal: 20,
+    },
+    noItemsIcon: {
+        width: 100,
+        height: 100,
+        marginBottom: 10,
+        opacity: 0.5,
+    },
+    noItemsText: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#333",
+    },
+    noItemsSubText: {
+        fontSize: 14,
+        color: "#666",
+        marginTop: 5,
+        textAlign: "center",
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: "bold",
+        color: "#666",
+        marginBottom: 10,
+        textAlign: "center",
+        alignSelf: "center",
+        width: "100%",
+        marginTop: 10
+    }
 });

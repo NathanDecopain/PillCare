@@ -5,12 +5,8 @@ import { db, storage, auth } from "config/firebase-config";
 import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {EmailAuthProvider, reauthenticateWithCredential, updatePassword, sendPasswordResetEmail,} from "firebase/auth";
-
-
-
-
-
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, sendPasswordResetEmail, } from "firebase/auth";
+import { router } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
@@ -42,7 +38,7 @@ export default function EditProfilePage() {
         setUser(user.userID); // Ensure this is being set
       }
     };
-  
+
     fetchUser();
   }, []);
 
@@ -58,6 +54,7 @@ export default function EditProfilePage() {
           firstName: firstName,
           lastName: lastName,
           phoneNumber: phoneNumber,
+          dateOfBirth: dateOfBirth,
         });
       } else {
         await setDoc(docRef, {
@@ -65,6 +62,7 @@ export default function EditProfilePage() {
           firstName: firstName,
           lastName: lastName,
           phoneNumber: phoneNumber,
+          dateOfBirth: dateOfBirth,
         });
       }
 
@@ -105,20 +103,18 @@ export default function EditProfilePage() {
     return providerData.some((provider) => provider.providerId === "password");
   };
 
-
-
-
-
   return (
     <View style={styles.pageContainer}>
       {/* Header */}
       <View style={styles.header}>
         <Image source={require("assets/icon/logo.png")} style={styles.logo} />
       </View>
-
       {/* Contenu principal dans un ScrollView */}
       <ScrollView contentContainerStyle={[styles.container, { paddingBottom: 80 }]}>
-
+        {/* Bouton de retour */}
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Image source={require("assets/icon/retour.png")} style={styles.backIcon} />
+        </TouchableOpacity>
         {/* Photo de profil */}
         <View style={styles.profilePictureContainer}>
           <Image
@@ -131,8 +127,6 @@ export default function EditProfilePage() {
         </View>
 
         {/* Formulaire */}
-        <Text style={styles.label}>User ID</Text>
-        <Text style={styles.label}>{user}</Text>
         <View style={styles.form}>
           <Text style={styles.label}>First Name</Text>
           <TextInput
@@ -175,8 +169,7 @@ export default function EditProfilePage() {
         </View>
 
         {/* Bouton Sauvegarder */}
-        <TouchableOpacity style={styles.saveButton} 
-        onPress={handleSaveChanges}>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSaveChanges}>
           <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
 
@@ -198,13 +191,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 25,
 
-},
-logo: {
+  },
+  logo: {
     width: 100,
     height: 100,
     paddingTop: 20,
     resizeMode: "contain",
-},
+  },
   container: {
     padding: 20,
     alignItems: "center",
@@ -212,7 +205,7 @@ logo: {
   profilePictureContainer: {
     alignItems: "center",
     marginBottom: 30,
-    position: "relative", // Permet de positionner l’icône par rapport à ce conteneur
+    position: "relative", 
   },
   profilePicture: {
     width: 120,
@@ -222,8 +215,8 @@ logo: {
   },
   editIcon: {
     position: "absolute",
-    bottom: 5, // Ajusté pour bien coller au bas
-    right: 5,  // Ajusté pour bien coller à droite
+    bottom: 5, 
+    right: 5, 
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 8,
@@ -267,5 +260,18 @@ logo: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#fff",
+  },
+  backButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    zIndex: 10,
+  },
+  backIcon: {
+    width: 32,
+    height: 32,
+    resizeMode: "contain",
+    marginTop: -20,
+    marginLeft: -10
   },
 });

@@ -1,19 +1,19 @@
-import {View, Text, StyleSheet, Image, Dimensions, ScrollView} from "react-native";
+import { View, Text, StyleSheet, Image, Dimensions, ScrollView } from "react-native";
 import "react-native-gesture-handler";
-import {TouchableOpacity} from "react-native-gesture-handler";
-import {useRouter} from "expo-router";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { useRouter } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, {useState, useEffect} from "react";
-import {signOut} from "firebase/auth";
-import {db, storage, auth} from "config/firebase-config";
-import {useAuthContext} from "@/contexts/AuthContext";
+import React, { useState, useEffect } from "react";
+import { signOut } from "firebase/auth";
+import { db, storage, auth } from "config/firebase-config";
+import { useAuthContext } from "@/contexts/AuthContext";
 
-const {width} = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 export default function ProfilePage() {
     const router = useRouter();
 
-    const {session, logout} = useAuthContext();
+    const { session, logout } = useAuthContext();
 
     const handleLogout = async () => {
         logout();
@@ -23,9 +23,12 @@ export default function ProfilePage() {
     return (
         <View style={styles.container}>
             {/* Header */}
+            <View style={styles.header}>
+                <Image source={require("assets/icon/logo.png")} style={styles.logo} />
+            </View>
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.profileContainer}>
-                    <Image source={require("assets/icon/userPfp.jpg")} style={styles.profileImage}/>
+                    <Image source={require("assets/icon/userPfp.jpg")} style={styles.profileImage} />
                     <Text style={styles.name}>{session?.firstName} {session?.lastName}</Text>
                     <Text style={styles.subtitle}>{session?.email}</Text>
                 </View>
@@ -38,7 +41,9 @@ export default function ProfilePage() {
                     </View>
                     <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>Date of Birth:</Text>
-                        <Text style={styles.infoValue}>{session?.dateOfBirth}</Text>
+                        <Text style={styles.infoValue}>
+                            {session?.dateOfBirth ? session.dateOfBirth : "Not available"}
+                        </Text>
                     </View>
                     <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>About Me:</Text>
@@ -57,7 +62,7 @@ export default function ProfilePage() {
                 </TouchableOpacity>
 
 
-                <TouchableOpacity style={styles.button} onPress={() => router.replace("/medications")}>
+                <TouchableOpacity style={styles.button} onPress={() => router.push("/medications")}>
                     <Text style={styles.buttonText}>My Medications</Text>
                 </TouchableOpacity>
 
@@ -79,11 +84,12 @@ const styles = StyleSheet.create({
     },
     header: {
         width: "100%",
-        height: 120,
+        height: 110,
         backgroundColor: "#CDD8F5",
         justifyContent: "center",
         alignItems: "center",
         borderRadius: 25,
+
     },
     logo: {
         width: 100,
@@ -124,7 +130,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 20,
         shadowColor: "#000",
-        shadowOffset: {width: 0, height: 2},
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 3,
@@ -151,7 +157,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginTop: 20,
         shadowColor: "#000",
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 5,
@@ -171,7 +177,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginBottom: 20,
         shadowColor: "#000",
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 5,
@@ -190,7 +196,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginTop: 15,
         shadowColor: "#000",
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 5,

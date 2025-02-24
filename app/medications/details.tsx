@@ -1,19 +1,19 @@
-import React, {useEffect, useState} from "react";
-import {View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions} from "react-native";
-import {Redirect, router, useLocalSearchParams} from "expo-router";
-import {useNavigation} from "@react-navigation/native";
-import {MedicationWithId} from "@/models/Medication";
-import {Picker} from "@react-native-picker/picker";
-import {doc, getDoc, setDoc} from "firebase/firestore";
-import {db} from "config/firebase-config";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions } from "react-native";
+import { Redirect, router, useLocalSearchParams } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
+import { MedicationWithId } from "@/models/Medication";
+import { Picker } from "@react-native-picker/picker";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "config/firebase-config";
 
-const {width} = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 export default function MedicationDetails() {
     const medicationId = useLocalSearchParams().medicationId as string;
     console.log("medicationId", medicationId);
     if (!medicationId) {
-        return <Redirect href={"/medications"}/>;
+        return <Redirect href={"/medications"} />;
     }
 
     const [medication, setMedication] = useState<MedicationWithId>();
@@ -25,7 +25,7 @@ export default function MedicationDetails() {
             if (medicationId) {
                 getDoc(doc(db, "usersMedication", medicationId)).then((doc) => {
                     if (doc.exists()) {
-                        setMedication({...doc.data(), medicationId: doc.id} as MedicationWithId);
+                        setMedication({ ...doc.data(), medicationId: doc.id } as MedicationWithId);
                     } else {
                         console.error("No such document!");
                     }
@@ -38,7 +38,7 @@ export default function MedicationDetails() {
 
     // Handle changes to the medication object
     const handleChange = (key: keyof MedicationWithId, value: string) => {
-        setMedication((prev) => ({...prev, [key]: value}) as MedicationWithId);
+        setMedication((prev) => ({ ...prev, [key]: value }) as MedicationWithId);
     };
 
     const updateMedication = async () => {
@@ -66,12 +66,17 @@ export default function MedicationDetails() {
         }
     }
     return (
-        <View style={{flex: 1, backgroundColor: "#fff"}}>
+        <View style={{ flex: 1, backgroundColor: "#fff" }}>
+            {/* Header */}
+            <View style={styles.header}>
+                <Image source={require("assets/icon/logo.png")} style={styles.logo} />
+            </View>
             {/* Contenu principal */}
             <View style={styles.container}>
+
                 {/* Bouton de retour */}
                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                    <Image source={require("assets/icon/retour.png")} style={styles.backIcon}/>
+                    <Image source={require("assets/icon/retour.png")} style={styles.backIcon} />
                 </TouchableOpacity>
                 {!medication ? (<Text>Loading...</Text>) : (
                     <View style={styles.form}>
@@ -90,13 +95,18 @@ export default function MedicationDetails() {
                         />
 
                         <Text style={styles.label}>Type</Text>
-                        <Picker selectedValue={medication.type}
-                                onValueChange={(itemValue) => handleChange("type", itemValue.toString())}>
-                            <Picker.Item label="Prescription" value="prescription"/>
-                            <Picker.Item label="Supplement" value="supplement"/>
-                            <Picker.Item label="Over-the-counter" value="over-the-counter"/>
-                            <Picker.Item label="Other" value="other"/>
-                        </Picker>
+                        <View style={styles.pickerWrapper}>
+                            <Picker
+                                selectedValue={medication.type}
+                                onValueChange={(itemValue) => handleChange("type", itemValue.toString())}
+                                style={styles.picker}
+                            >
+                                <Picker.Item label="Prescription" value="prescription" />
+                                <Picker.Item label="Supplement" value="supplement" />
+                                <Picker.Item label="Over-the-counter" value="over-the-counter" />
+                                <Picker.Item label="Other" value="other" />
+                            </Picker>
+                        </View>
 
                         <Text style={styles.label}>Additional Notes</Text>
                         <TextInput
@@ -198,4 +208,19 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "#fff",
     },
+    pickerWrapper: {
+        backgroundColor: "#F5F5FF",
+        borderRadius: 10,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: "#ccc",
+        height: 50,
+        justifyContent: "center",
+        paddingHorizontal: 10,
+    },
+
+    picker: {
+        width: "100%",
+    },
+
 });

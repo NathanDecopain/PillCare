@@ -8,25 +8,19 @@ import { Redirect } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
-type MedicationWithId = {
-    createdAt: string;
-    dateTime: string;
-    dosage: string;
-    historyId: string;
-    medicationId: string;
-    observation?: string;
-    type: string;
-    userId: string;
-};
+const data = [
+    { name: "Taken", population: 27, color: "#CDD8F5", legendFontColor: "#333", legendFontSize: 15 },
+    { name: "Not taken", population: 3, color: "#7B83EB", legendFontColor: "#333", legendFontSize: 15 },
+];
 
 const StatisticsPage = () => {
     const [historyData, setHistoryData] = useState<MedicationWithId[]>([]);
     const [medicationNames, setMedicationNames] = useState<Record<string, string>>({});
     const { session } = useAuthContext();
 
-    useEffect(() => {
-        if (!session?.userID) return;
+    if (!session) return <Redirect href="/login/"/>;
 
+    useEffect(() => {
         const fetchMedications = async () => {
             try {
                 // Fetch medication history
@@ -95,8 +89,34 @@ const StatisticsPage = () => {
                 <Image source={require("assets/icon/logo.png")} style={styles.logo} />
             </View>
             <ScrollView style={styles.container}>
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <Image source={require("assets/icon/logo.png")} style={styles.logo} />
+            </View>
+
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <Text style={styles.title}>This Month</Text>
                 <View style={styles.card}>
                     <Text style={styles.sectionTitle}>Medication Statistics</Text>
+                    <Text style={styles.medicineName}>Acetaminophen</Text>
+                    <View style={styles.chartContainer}>
+                        <PieChart
+                            data={data}
+                            width={width * 0.8}
+                            height={200}
+                            chartConfig={{
+                                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                            }}
+                            accessor="population"
+                            backgroundColor="transparent"
+                            paddingLeft="15"
+                            absolute
+                        />
+                    </View>
+                </View>
+
+                <View style={styles.card}>
+                    <Text style={styles.medicineName}>Anadrol-50</Text>
                     <View style={styles.chartContainer}>
                         <PieChart
                             data={data}
@@ -114,6 +134,8 @@ const StatisticsPage = () => {
                 </View>
             </ScrollView>
         </View>
+            </ScrollView>
+        </View>
     );
 };
 
@@ -121,6 +143,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#F8F9FD",
+        alignItems: "center",
     },
     header: {
         width: "100%",
@@ -136,27 +159,32 @@ const styles = StyleSheet.create({
         paddingTop: 20,
         resizeMode: "contain",
     },
+    scrollContainer: {
+        paddingVertical: 20,
+        alignItems: "center",
+    },
     card: {
         width: width * 0.9,
         backgroundColor: "#fff",
         borderRadius: 15,
         padding: 20,
         marginBottom: 20,
+        alignItems: "center",
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 6,
         elevation: 5,
     },
-    sectionTitle: {
-        fontSize: 20,
+    medicineName: {
+        fontSize: 18,
         fontWeight: "bold",
-        color: "#333",
-        marginBottom: 10,
+        color: "#666",
+        marginBottom: 5,
         textAlign: "center",
     },
     chartContainer: {
-        alignSelf: "center",
+        justifyContent: "center",
         alignItems: "center",
         borderRadius: 15,
         paddingVertical: 10,
@@ -166,6 +194,12 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
+    title: {
+        fontSize: 22,
+        fontWeight: "bold",
+        color: "#666",
+        marginBottom: 10,
+    }
 });
 
 export default StatisticsPage;

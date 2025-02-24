@@ -1,21 +1,21 @@
-import React, {useEffect, useState} from "react";
-import {View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions, ScrollView} from "react-native";
-import {Picker} from "@react-native-picker/picker";
-import {Redirect, useLocalSearchParams, useRouter} from "expo-router";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions, ScrollView } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {addDoc, and, collection, getDocs, query, setDoc, where} from "firebase/firestore";
-import {db} from "config/firebase-config";
-import {MedicationWithId} from "@/models/Medication";
-import {useAuthContext} from "@/contexts/AuthContext";
-import {HistoryEntry} from "@/models/HistoryEntry";
+import { addDoc, and, collection, getDocs, query, setDoc, where } from "firebase/firestore";
+import { db } from "config/firebase-config";
+import { MedicationWithId } from "@/models/Medication";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { HistoryEntry } from "@/models/HistoryEntry";
 
-const {width} = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 export default function AddToHistory() {
-    const {session} = useAuthContext();
+    const { session } = useAuthContext();
     const router = useRouter();
     const dateParam = useLocalSearchParams().date.toString();
-    if (!session) return <Redirect href={"/login"}/>
+    if (!session) return <Redirect href={"/login"} />
 
     const [userMedications, setUserMedications] = useState<MedicationWithId[]>()
     const [selectedMedication, setSelectedMedication] = useState<MedicationWithId>()
@@ -40,7 +40,7 @@ export default function AddToHistory() {
     const [showTimePicker, setShowTimePicker] = useState(false);
 
     const handleChange = (key: keyof typeof historyEntry, value: string) => {
-        setHistoryEntry((prev) => ({...prev, [key]: value}));
+        setHistoryEntry((prev) => ({ ...prev, [key]: value }));
     };
 
     const handleSubmit = () => {
@@ -62,7 +62,7 @@ export default function AddToHistory() {
             return;
         }
 
-        {/* TODO: Insert history entry into the database */}
+        {/* TODO: Insert history entry into the database */ }
         try {
             const data: HistoryEntry = {
                 userId: session?.userID,
@@ -99,44 +99,52 @@ export default function AddToHistory() {
         const isCurrentYear = inputDate.getFullYear() === today.getFullYear();
 
         // Format the date as "Monday Feb. 3"
-        const options = {
-            weekday: 'long',
-            month: 'short',
-            day: 'numeric',
-            year: isCurrentYear ? undefined : 'numeric'
+        const options: Intl.DateTimeFormatOptions = {
+            weekday: "long",
+            month: "short",
+            day: "numeric",
+            year: isCurrentYear ? undefined : "numeric"
         };
-        return inputDate.toLocaleDateString('en-US', options);
+        return inputDate.toLocaleDateString("en-US", options);
+
     }
 
     function formatTime(dateTime: Date) {
         const inputTime = dateTime; // Convert input to a Date object
 
-        const options = {
-            hour: 'numeric', // Use numeric hour (e.g., 8, 12)
-            minute: '2-digit', // Use two-digit minutes (e.g., 00, 30)
-            hour12: true // Use 12-hour clock (AM/PM)
+        const options: Intl.DateTimeFormatOptions = {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
         };
-        return inputTime.toLocaleTimeString('en-US', options);
+        return inputTime.toLocaleTimeString("en-US", options);
+
     }
 
-    const handleDateChange = (event, selectedDate) => {
-        handleChange("dateTime", selectedDate);
+    const handleDateChange = (event: any, selectedDate?: Date | undefined) => {
+        if (selectedDate) {
+            handleChange("dateTime", selectedDate.toISOString());
+        }
         setShowDatePicker(false);
-    }
+    };
 
-    const handleTimeChange = (event, selectedTime) => {
-        handleChange("dateTime", selectedTime);
+
+    const handleTimeChange = (event: any, selectedTime?: Date | undefined) => {
+        if (selectedTime) {
+            handleChange("dateTime", selectedTime.toISOString());
+        }
         setShowTimePicker(false);
-    }
+    };
+
 
     // Fetch user medications from the database
     const fetchUserMedications = async () => {
         const q = query(
             collection(db, "usersMedication"),
-            and(where("userId", "==", session.userID) , where("isInactive", "==", false))
+            and(where("userId", "==", session.userID), where("isInactive", "==", false))
         );
         const querySnapshot = await getDocs(q);
-        const data = querySnapshot.docs.map(doc => ({...doc.data(), medicationId: doc.id} as MedicationWithId));
+        const data = querySnapshot.docs.map(doc => ({ ...doc.data(), medicationId: doc.id } as MedicationWithId));
         setUserMedications(data);
     }
 
@@ -153,14 +161,18 @@ export default function AddToHistory() {
 
     return (
         <View style={styles.container}>
+            {/* Header */}
+            <View style={styles.header}>
+                <Image source={require("assets/icon/logo.png")} style={styles.logo} />
+            </View>
             {/* Formulaire */}
             <ScrollView contentContainerStyle={styles.scrollContainer}>
                 <Text style={styles.label}>What do you want to log?</Text>
                 <View style={styles.pickerWrapper}>
                     <Picker selectedValue={historyEntry.type} onValueChange={(value) => handleChange("type", value)}
-                            style={styles.picker}>
-                        <Picker.Item key={1} label="Medication I took" value="medication"/>
-                        <Picker.Item key={2} label="An observation on my health" value="observation"/>
+                        style={styles.picker}>
+                        <Picker.Item key={1} label="Medication I took" value="medication" />
+                        <Picker.Item key={2} label="An observation on my health" value="observation" />
                     </Picker>
                 </View>
                 {/*Date and time picker*/}
@@ -204,22 +216,28 @@ export default function AddToHistory() {
 
                     {/*User medications dropdown*/}
                     <View style={styles.pickerWrapper}>
-                        <Picker selectedValue={null} onValueChange={(value) => handleSelectMedication(value)}
-                                style={styles.picker}>
-                            <Picker.Item label="Select a medication" value={null}/>
-                            {userMedications.map((item) => <Picker.Item key={item.medicationId} label={item.name} value={item.medicationId}/>)}
+                        <Picker
+                            selectedValue={selectedMedication?.medicationId || userMedications?.[0]?.medicationId} // 🔹 Valeur par défaut
+                            onValueChange={(value) => handleSelectMedication(value)}
+                            style={styles.picker}
+                        >
+                            <Picker.Item label="Select a medication" value="default_value" />
+                            {userMedications?.map((item) => (
+                                <Picker.Item key={item.medicationId} label={item.name} value={item.medicationId}/>
+                            ))}
                         </Picker>
+
                     </View>
 
                     {/* Dosage if changed */}
                     <Text style={styles.label}>Dosage</Text>
                     <TextInput style={styles.input} placeholder="Enter dosage (e.g., 500mg)"
-                               value={historyEntry.dosage} onChangeText={(text) => handleChange("dosage", text)}/>
+                        value={historyEntry.dosage} onChangeText={(text) => handleChange("dosage", text)} />
 
                     <Text style={styles.label}>Additional Notes</Text>
                     <TextInput style={[styles.input, styles.notesInput]} placeholder="Enter any additional notes"
-                               multiline value={historyEntry.observation}
-                               onChangeText={(text) => handleChange("observation", text)}/>
+                        multiline value={historyEntry.observation}
+                        onChangeText={(text) => handleChange("observation", text)} />
                 </>
                 }
 
@@ -227,8 +245,8 @@ export default function AddToHistory() {
                 {historyEntry.type === "observation" && <>
                     <Text style={styles.label}>Observation</Text>
                     <TextInput style={[styles.input, styles.notesInput]} placeholder="Enter any additional notes"
-                               multiline value={historyEntry.observation}
-                               onChangeText={(text) => handleChange("observation", text)}/>
+                        multiline value={historyEntry.observation}
+                        onChangeText={(text) => handleChange("observation", text)} />
                 </>
                 }
 
@@ -252,21 +270,23 @@ const styles = StyleSheet.create({
     },
     header: {
         width: "100%",
-        height: 120,
+        height: 110,
         backgroundColor: "#CDD8F5",
         justifyContent: "center",
         alignItems: "center",
         borderRadius: 25,
-        marginBottom: 20,
+
     },
     logo: {
         width: 100,
         height: 100,
+        paddingTop: 20,
         resizeMode: "contain",
     },
     scrollContainer: {
         paddingHorizontal: 20,
         paddingBottom: 30,
+        paddingTop: 30,
     },
     label: {
         fontSize: 16,
@@ -280,7 +300,7 @@ const styles = StyleSheet.create({
         padding: 12,
         marginBottom: 15,
         fontSize: 16,
-        color: "#333",
+        color: "#666",
         borderWidth: 1,
         borderColor: "#ccc",
     },
@@ -288,7 +308,7 @@ const styles = StyleSheet.create({
         height: 60,
     },
     pickerWrapper: {
-        backgroundColor: "#F5F5FF",
+        backgroundColor: "#999",
         borderRadius: 10,
         marginBottom: 15,
         borderWidth: 1,
@@ -311,6 +331,7 @@ const styles = StyleSheet.create({
     },
     picker: {
         width: "100%",
+        color: "#666",
     },
     addButton: {
         backgroundColor: "#7B83EB",

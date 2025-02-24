@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { useRouter } from "expo-router"; 
 import { auth } from 'config/firebase-config';
 import { db } from 'config/firebase-config';
@@ -14,6 +15,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  const googleProvider = new GoogleAuthProvider();
   const router = useRouter(); 
 
   const handleEmailLogin = async () => {
@@ -39,8 +41,6 @@ export default function Login() {
     }
   };
 
-
-
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -49,24 +49,24 @@ export default function Login() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.title}>Connexion</Text>
+        <Text style={styles.title}>Log in</Text>
 
         {/* Email */}
         <Text style={styles.label}>Email</Text>
         <TextInput
           value={email}
           onChangeText={setEmail}
-          placeholder="Entrez votre email"
+          placeholder="Enter your email"
           style={styles.input}
           keyboardType="email-address"
         />
 
         {/* Mot de passe */}
-        <Text style={styles.label}>Mot de passe</Text>
+        <Text style={styles.label}>Password</Text>
         <TextInput
           value={password}
           onChangeText={setPassword}
-          placeholder="Entrez votre mot de passe"
+          placeholder="Enter your password"
           style={styles.input}
           secureTextEntry
         />
@@ -76,14 +76,13 @@ export default function Login() {
 
         {/* Bouton Connexion */}
         <TouchableOpacity style={styles.button} onPress={handleEmailLogin}>
-          <Text style={styles.buttonText}>Se connecter</Text>
+          <Text style={styles.buttonText}>Log in</Text>
         </TouchableOpacity>
 
-
-        {/* 🔹 Redirection vers l'inscription */}
+        {/*Redirection vers l'inscription */}
         <TouchableOpacity onPress={() => router.push("/register")} style={styles.registerLink}>
           <Text style={styles.registerText}>
-            Pas encore de compte ? <Text style={styles.registerTextBold}>Inscrivez-vous</Text>
+            Don't have an account ? <Text style={styles.registerTextBold}>Sign up</Text>
           </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -163,7 +162,6 @@ logo: {
     fontWeight: "bold",
     color: "#fff",
   },
-
   registerLink: {
     marginTop: 20,
     alignItems: "center",
