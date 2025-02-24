@@ -2,84 +2,70 @@ import { View, Text, StyleSheet, Dimensions, ScrollView, Image } from "react-nat
 import { PieChart } from "react-native-chart-kit";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {db} from "config/firebase-config";
-import {collection, addDoc, onSnapshot, getDocs, setDoc, doc, where, query, and} from "firebase/firestore";
-import {useAuthContext} from "@/contexts/AuthContext";
-import {Redirect, router, useRouter} from "expo-router";
-import {Medication, MedicationWithId} from "@/models/Medication";
-
-
+import { db } from "config/firebase-config";
+import { collection, getDocs, query, where, and } from "firebase/firestore";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { Redirect } from "expo-router";
 
 const { width } = Dimensions.get("window");
-
-
-const fetchMedications = async () => {
-    const {session} = useAuthContext();
-    if (!session) {
-        return <Redirect href={"/login"}/>;
-    }
-    const [historyData, setHistoryData] = useState<Array<MedicationWithId>>([]);
-
-    useEffect(() => {
-        if (session!.userID) {
-            fetchMedications();
-        }
-    }, [session!.userID]);
-    try {
-        if (!session?.userID) {
-            console.error("Can't fetch user medications: User ID is undefined or null");
-            return; // Prevent the query if userId is invalid
-        }
-
-        const q = query(
-            collection(db, "usersHistory"),
-            and(where("userId", "==", session.userID), where("isInactive", "==", false))
-        );
-
-        const querySnapshot = await getDocs(q);
-        const userHistoryData = querySnapshot.docs.map(doc => ({
-            ...doc.data(),
-            medicationId: doc.id
-        } as MedicationWithId));
-        setHistoryData(userHistoryData);
-    } catch (error) {
-        console.error("Error fetching medications: ", error);
-    }
+type MedicationWithId = {
+    createdAt: string; // You may need to use `Timestamp` from Firestore if dealing with Firestore timestamps
+    dateTime: string;  // Adjust accordingly if you need a Date object instead
+    dosage: string;
+    historyId: string;
+    medicationId: string;
+    observation?: string; // Optional if it may not always be present
+    type: string;
+    userId: string;
 };
-
-
-
-const data = [
-    { name: "Taken", population: 27, color: "#CDD8F5", legendFontColor: "#333", legendFontSize: 15 },
-    { name: "Not taken", population: 3, color: "#7B83EB", legendFontColor: "#333", legendFontSize: 15 },
-];
-
 const StatisticsPage = () => {
-    const [userEmail, setUserEmail] = useState(null);
+    const [historyData, setHistoryData] = useState<MedicationWithId[]>([]);
+    const { session } = useAuthContext();
 
     useEffect(() => {
-        const fetchUser = async () => {
-            const userData = await AsyncStorage.getItem("user");
-            if (userData) {
-                const user = JSON.parse(userData);
-                setUserEmail(user.email);
+        if (!session?.userID) return;
+        
+        const fetchMedications = async () => {
+            try {
+                const q = query(
+                    collection(db, "usersHistory"),
+                    and(where("userId", "==", session.userID), where("type", "==", "medication"))
+                );
+                const querySnapshot = await getDocs(q);
+                const userHistoryData = querySnapshot.docs.map(doc => ({
+                    ...(doc.data() as MedicationWithId), // Cast Firestore data to `MedicationWithId`
+                    medicationId: doc.id
+                }));
+                setHistoryData(userHistoryData);
+                
+            } catch (error) {
+                console.error("Error fetching medications: ", error);
             }
         };
 
-        fetchUser();
-    }, []);
+        fetchMedications();
+    }, [session?.userID]);
+
+    if (!session) {
+        return <Redirect href={'/login'} />;
+    }
+
+    const takenCount = historyData.length;
+    const notTakenCount = Math.max(0, 30 - takenCount); // Assuming 30-day tracking period
+    
+    const data = [
+        { name: "Taken", population: takenCount, color: "#CDD8F5", legendFontColor: "#333", legendFontSize: 15 },
+        { name: "Not taken", population: notTakenCount, color: "#7B83EB", legendFontColor: "#333", legendFontSize: 15 }
+    ];
 
     return (
-    <View style={styles.container}>
-        
-    <View style={styles.header}>
-        <Image source={require("assets/icon/logo.png")} style={styles.logo} />
-    </View>
-    <ScrollView style={styles.container}>
-
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <Image source={require("assets/icon/logo.png")} style={styles.logo} />
+            </View>
+            <ScrollView style={styles.container}>
                 <View style={styles.card}>
-                    
-                    <Text style={styles.medicineName}>Acetaminophen</Text>
+                    <Text style={styles.sectionTitle}>Medication Statistics</Text>
                     <View style={styles.chartContainer}>
                         <PieChart
                             data={data}
@@ -95,25 +81,6 @@ const StatisticsPage = () => {
                         />
                     </View>
                 </View>
-
-                <View style={styles.card}>
-                    <Text style={styles.medicineName}>Anadrol-50</Text>
-                    <View style={styles.chartContainer}>
-                        <PieChart
-                            data={data}
-                            width={width * 0.9}
-                            height={200}
-                            chartConfig={{
-                                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                            }}
-                            accessor="population"
-                            backgroundColor="transparent"
-                            paddingLeft="15"
-                            absolute
-                        />
-                    </View>
-                </View>
-
             </ScrollView>
         </View>
     );
@@ -125,29 +92,18 @@ const styles = StyleSheet.create({
         backgroundColor: "#F8F9FD",
     },
     header: {
-      width: "100%",
-      height: 110,
-      backgroundColor: "#CDD8F5",
-      justifyContent: "center",
-      alignItems: "center",
-      borderRadius: 25,
-  
-  },
-  logo: {
-      width: 100,
-      height: 100,
-      paddingTop: 20,
-      resizeMode: "contain",
-  },
-    headerTitle: {
-        fontSize: 22,
-        fontWeight: "bold",
-        color: "#fff",
-        marginTop: 5,
-    },
-    scrollContainer: {
-        paddingVertical: 20,
+        width: "100%",
+        height: 110,
+        backgroundColor: "#CDD8F5",
+        justifyContent: "center",
         alignItems: "center",
+        borderRadius: 25,
+    },
+    logo: {
+        width: 100,
+        height: 100,
+        paddingTop: 20,
+        resizeMode: "contain",
     },
     card: {
         width: width * 0.9,
@@ -166,13 +122,6 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "#333",
         marginBottom: 10,
-        textAlign: "center",
-    },
-    medicineName: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#555",
-        marginBottom: 5,
         textAlign: "center",
     },
     chartContainer: {
