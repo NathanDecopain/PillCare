@@ -14,7 +14,7 @@ export default function TabLayout() {
 
     const {expoPushToken, notification} = usePushNotifications();
 
-    console.log("expoPushToken", expoPushToken);
+    console.log("expoPushToken", expoPushToken, "notification", notification);
 
     return (
         <Tabs screenOptions={{
