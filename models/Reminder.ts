@@ -1,5 +1,7 @@
 // constants for reminder model
-export enum daysOfWeek {
+import {Timestamp} from "@firebase/firestore";
+
+export enum DAYS_OF_WEEK {
     SUNDAY = 'SUNDAY',
     MONDAY = 'MONDAY',
     TUESDAY = 'TUESDAY',
@@ -30,30 +32,25 @@ export type Reminder = {
     description?: string,
 
     // Periodicity
-    time: string,
-    startDate: string,
-    endDate?: string,
-    daysOfWeek: Array<daysOfWeek>,
-    specificDate?: string,
+    time: Date, // Only the time part will be used
+    startDate: Date, // Only the date part will be used
+    endDate?: Date, // Only the date part will be used
+    daysOfWeek: Array<DAYS_OF_WEEK>,
+    specificDate?: Date,
     intervalDays?: number,
     intervalHours?: number,
     intervalMinutes?: number,
     repeatMode: repeatMode,
-    repeatCount?: number,
-    repeatUntil?: string,
 
     isActive: boolean,
 }
 
-export type ReminderWithId = Reminder & {
+// When we get data from firestore, the dates are timestamp objects
+export type ReminderFromFirestore = Omit<Reminder, 'time' | 'startDate' | 'endDate' | 'specificDate' | 'repeatUntil'> & {
     reminderId: string,
-}
-
-export type ReminderWithMedication = ReminderWithId & {
-    type: reminderType.MEDICATION,
-    medicationId: string,
-}
-
-export type ReminderForObservation = ReminderWithId & {
-    type: reminderType.OBSERVATION
+    time: Timestamp,
+    startDate: Timestamp,
+    endDate?: Timestamp,
+    specificDate?: Timestamp,
+    repeatUntil?: Timestamp,
 }

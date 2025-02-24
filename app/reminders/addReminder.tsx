@@ -6,7 +6,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import {addDoc, collection, getDocs, query, where} from "firebase/firestore";
 import {db} from "config/firebase-config";
 import {useAuthContext} from "@/contexts/AuthContext";
-import {daysOfWeek, Reminder, reminderType, repeatMode} from "@/models/Reminder";
+import {DAYS_OF_WEEK, Reminder, reminderType, repeatMode} from "@/models/Reminder";
 import {MedicationWithId} from "@/models/Medication";
 import {Checkbox} from "expo-checkbox"; // Import the Medication model
 
@@ -15,7 +15,6 @@ const {width} = Dimensions.get("window");
 export default function AddReminder() {
     const {session} = useAuthContext();
     const router = useRouter();
-    const dateParam = useLocalSearchParams().date?.toString();
     if (!session) return <Redirect href={"/login"}/>;
 
     const [reminder, setReminder] = useState<Reminder>({
@@ -23,8 +22,8 @@ export default function AddReminder() {
         type: reminderType.MEDICATION, // Default to MEDICATION
         label: "",
         description: "",
-        time: dateParam ? new Date(dateParam).toISOString() : new Date().toISOString(),
-        startDate: dateParam ? new Date(dateParam).toISOString() : new Date().toISOString(),
+        time: new Date(),
+        startDate: new Date(),
         endDate: undefined,
         daysOfWeek: [],
         specificDate: undefined,
@@ -32,8 +31,6 @@ export default function AddReminder() {
         intervalHours: undefined,
         intervalMinutes: undefined,
         repeatMode: repeatMode.DAILY, // Default to DAILY
-        repeatCount: undefined,
-        repeatUntil: undefined,
         isActive: true,
     });
 
@@ -65,7 +62,7 @@ export default function AddReminder() {
         });
     }, [session]);
 
-    const handleChange = (key: keyof Reminder, value: string | string[] | number | boolean | Date) => {
+    const handleChange = (key: keyof Reminder, value: string | string[] | number | boolean | Date | undefined) => {
         setReminder((prev) => ({...prev, [key]: value}));
     };
 
@@ -103,7 +100,7 @@ export default function AddReminder() {
                 isActive: true,
             };
 
-            await addDoc(collection(db, "reminders"), data);
+            await addDoc(collection(db, "usersReminders"), data);
             alert("Reminder created successfully!");
             router.navigate("/home");
         } catch (error) {
@@ -135,17 +132,17 @@ export default function AddReminder() {
     };
 
     const handleStartDateChange = (event, selectedDate) => {
-        handleChange("startDate", selectedDate.toISOString());
+        handleChange("startDate", selectedDate);
         setShowStartDatePicker(false);
     };
 
     const handleEndDateChange = (event, selectedDate) => {
-        handleChange("endDate", selectedDate.toISOString());
+        handleChange("endDate", selectedDate);
         setShowEndDatePicker(false);
     };
 
     const handleTimeChange = (event, selectedTime) => {
-        handleChange("time", selectedTime.toISOString());
+        handleChange("time", selectedTime);
         setShowTimePicker(false);
     };
 
@@ -229,7 +226,7 @@ export default function AddReminder() {
                     <View style={{flexDirection: "row", alignItems: "center", columnGap: 5}}>
                         <Checkbox
                             value={reminder.endDate !== undefined}
-                            onValueChange={(value) => handleChange("endDate", value ? new Date().toISOString() : undefined)}
+                            onValueChange={(value) => handleChange("endDate", value ? new Date() : undefined)}
                         />
                         <Text style={styles.label}>Ends?</Text>
                     </View>
@@ -293,7 +290,7 @@ export default function AddReminder() {
                 {reminder.repeatMode === repeatMode.WEEKLY && (
                     <>
                         <Text style={styles.label}>On</Text>
-                        {Object.values(daysOfWeek).map((day) => (
+                        {Object.values(DAYS_OF_WEEK).map((day) => (
                             <TouchableOpacity
                                 key={day}
                                 style={styles.dayButton}
