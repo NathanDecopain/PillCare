@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TextInput, TouchableOpacity } from 'react-native';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { useRouter } from "expo-router"; 
 import { auth } from 'config/firebase-config';
 import { db } from 'config/firebase-config';
@@ -15,7 +14,6 @@ export default function Login() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const googleProvider = new GoogleAuthProvider();
   const router = useRouter(); 
 
   const handleEmailLogin = async () => {
@@ -41,34 +39,7 @@ export default function Login() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      if (!user.emailVerified) {
-        setError("Votre adresse courriel n'a pas été vérifiée. Veuillez vérifier vos emails.");
-        return;
-      }
 
-      // Check if the user exists in Firestore
-      const userRef = doc(db, 'users', user.uid);
-      const userSnapshot = await getDoc(userRef);
-
-      if (!userSnapshot.exists()) {
-        // Create a new profile for the user
-        await setDoc(userRef, {
-          email: user.email,
-          userType: 'User',
-          createdAt: new Date(),
-        });
-      }
-
-      router.replace("/");
-    } catch (error) {
-      console.error('Error during Google sign-in:', error);
-      setError('Une erreur est survenue lors de la connexion avec Google.');
-    }
-  };
 
   return (
     <View style={styles.container}>
@@ -108,10 +79,6 @@ export default function Login() {
           <Text style={styles.buttonText}>Se connecter</Text>
         </TouchableOpacity>
 
-        {/* Bouton Connexion avec Google */}
-        <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignIn}>
-          <Text style={styles.googleButtonText}>Continuer avec Google</Text>
-        </TouchableOpacity>
 
         {/* 🔹 Redirection vers l'inscription */}
         <TouchableOpacity onPress={() => router.push("/register")} style={styles.registerLink}>
@@ -196,24 +163,7 @@ logo: {
     fontWeight: "bold",
     color: "#fff",
   },
-  googleButton: {
-    flexDirection: "row",
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 10,
-    paddingVertical: 15,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 10,
-    width: "100%",
-  },
-  googleButtonText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
-  },
+
   registerLink: {
     marginTop: 20,
     alignItems: "center",
