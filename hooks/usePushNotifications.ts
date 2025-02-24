@@ -6,6 +6,7 @@ import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 
 import {Platform} from "react-native";
+import {router} from "expo-router";
 
 export interface PushNotificationState {
     notification: Notifications.Notification;
@@ -13,6 +14,8 @@ export interface PushNotificationState {
 }
 
 export const usePushNotifications = (): PushNotificationState => {
+
+    // How notifications are displayed
     Notifications.setNotificationHandler({
         handleNotification: async () => ({
             shouldPlaySound: true,
@@ -72,8 +75,10 @@ export const usePushNotifications = (): PushNotificationState => {
             setNotification(notification);
         });
 
+        // This listener is fired whenever a user taps on or interacts with a notification
+        // (works when app is foregrounded, backgrounded, or killed)
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-            console.log(response);
+            router.push({pathname: "/addToHistory", params: {medicationId: response.notification.request.content.data.medicationId}});
         });
 
         return () => {
